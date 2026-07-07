@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creo Corp — Billing</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+:root{
+  --bg:#0d1117;--sidebar:#111820;--card:#161e28;--card2:#1c2532;
+  --gold:#c9a84c;--gold2:#e8c96a;--green:#00c97a;--red:#e05555;
+  --blue:#4a9eff;--text:#e8edf2;--muted:#5a6a7a;--border:#1e2d3d;
+  --radius:10px;--sw:240px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;}
+
+/* ── LOGIN ── */
+#loginPage{
+  position:fixed;inset:0;z-index:999;
+  background:linear-gradient(135deg,#0a0f16 0%,#111820 50%,#0d1117 100%);
+  display:flex;align-items:center;justify-content:center;
+}
+#loginPage::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 25% 40%,rgba(201,168,76,.1) 0%,transparent 55%),
+             radial-gradient(ellipse at 75% 60%,rgba(0,201,122,.07) 0%,transparent 50%);
+}
+.lc{
+  position:relative;z-index:1;
+  background:rgba(22,30,40,.97);
+  border:1px solid rgba(201,168,76,.25);
+  border-radius:20px;padding:48px 44px;width:420px;
+  box-shadow:0 32px 80px rgba(0,0,0,.7);
+}
+.lc-logo{text-align:center;margin-bottom:36px;}
+.lc-logo .brand{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;color:var(--gold);letter-spacing:2px;}
+.lc-logo .sub{font-size:11px;color:var(--muted);letter-spacing:4px;text-transform:uppercase;margin-top:4px;}
+.lc-logo .scissors{font-size:44px;display:block;margin-bottom:12px;}
+.lfield{margin-bottom:18px;}
+.lfield label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--gold);margin-bottom:7px;}
+.lfield input{
+  width:100%;background:rgba(13,17,23,.9);border:1px solid rgba(201,168,76,.2);
+  border-radius:8px;padding:13px 16px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.lfield input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12);}
+.lbtn{
+  width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),#a07830);
+  border:none;border-radius:8px;color:#0d1117;font-weight:800;font-size:15px;
+  cursor:pointer;letter-spacing:.5px;transition:all .2s;margin-top:6px;
+}
+.lbtn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,.4);}
+.lerr{
+  background:rgba(224,85,85,.12);border:1px solid rgba(224,85,85,.35);
+  border-radius:7px;padding:10px 14px;font-size:13px;color:#ff8080;
+  margin-bottom:14px;display:none;
+}
+.lhint{font-size:11px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.6;}
+.lhint span{color:var(--gold);}
+
+/* ── APP SHELL ── */
+#app{display:none;height:100vh;flex-direction:row;}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sw);background:var(--sidebar);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;
+}
+.sb-brand{
+  padding:26px 20px 22px;
+  border-bottom:1px solid var(--border);
+}
+.sb-brand .b1{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--gold);letter-spacing:1.5px;}
+.sb-brand .b2{font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:2px;}
+.sb-nav{flex:1;padding:14px 12px;overflow-y:auto;}
+.ni{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border-radius:8px;cursor:pointer;
+  font-size:13px;font-weight:500;color:var(--muted);
+  margin-bottom:3px;transition:all .2s;user-select:none;
+}
+.ni:hover{background:rgba(201,168,76,.08);color:var(--gold);}
+.ni.active{
+  background:rgba(201,168,76,.13);color:var(--gold);
+  border-left:3px solid var(--gold);padding-left:11px;
+}
+.ni .ni-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+.sb-foot{
+  padding:16px 12px;border-top:1px solid var(--border);
+}
+.ub{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.03);border-radius:8px;
+  padding:10px 12px;margin-bottom:10px;
+}
+.ua{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),#a07830);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:13px;color:#0d1117;flex-shrink:0;
+}
+.ui p{font-size:12px;font-weight:700;}
+.ui span{font-size:10px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.logout-btn{
+  width:100%;padding:10px;background:rgba(224,85,85,.1);
+  border:1px solid rgba(224,85,85,.25);border-radius:7px;
+  color:#ff8080;font-size:12px;font-weight:700;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.logout-btn:hover{background:rgba(224,85,85,.2);}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:56px;
+  background:var(--sidebar);border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.topbar-title{font-size:15px;font-weight:700;color:var(--text);}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+
+/* Online toggle */
+.biz-toggle{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:24px;padding:6px 14px 6px 10px;
+}
+.biz-toggle .tl{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;}
+.tl.online{color:var(--green);}
+.tl.offline{color:var(--muted);}
+.sw{position:relative;width:46px;height:24px;}
+.sw input{opacity:0;width:0;height:0;}
+.sws{
+  position:absolute;inset:0;background:#2a3a4a;border-radius:24px;cursor:pointer;transition:.3s;
+}
+.sws::before{
+  content:'';position:absolute;width:18px;height:18px;
+  left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;
+}
+.sw input:checked+.sws{background:var(--green);}
+.sw input:checked+.sws::before{transform:translateX(22px);}
+
+.content{flex:1;overflow-y:auto;padding:24px 28px;}
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* ── CARDS ── */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;margin-bottom:18px;
+}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.ct{font-size:14px;font-weight:700;color:var(--gold);}
+
+/* ── STAT CARDS ── */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.sc{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px;position:relative;overflow:hidden;
+}
+.sc::after{
+  content:'';position:absolute;top:-20px;right:-20px;
+  width:80px;height:80px;border-radius:50%;opacity:.06;
+}
+.sc.g::after{background:var(--gold);}
+.sc.gr::after{background:var(--green);}
+.sc.bl::after{background:var(--blue);}
+.sc.rd::after{background:var(--red);}
+.sc .si{font-size:26px;margin-bottom:10px;}
+.sc .sv{font-size:24px;font-weight:800;margin-bottom:3px;}
+.sc.g .sv{color:var(--gold);}
+.sc.gr .sv{color:var(--green);}
+.sc.bl .sv{color:var(--blue);}
+.sc.rd .sv{color:#ff9999;}
+.sc .sl{font-size:11px;color:var(--muted);font-weight:500;}
+
+/* ── CHARTS ── */
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
+.cwrap{position:relative;height:260px;}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse;}
+th{
+  text-align:left;font-size:10px;text-transform:uppercase;
+  letter-spacing:1.2px;color:var(--gold);padding:9px 12px;
+  border-bottom:1px solid var(--border);font-weight:700;
+}
+td{
+  padding:11px 12px;font-size:13px;
+  border-bottom:1px solid rgba(30,45,61,.6);vertical-align:middle;
+}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+
+/* ── BUTTONS ── */
+.btn{
+  padding:9px 16px;border-radius:7px;font-size:12px;font-weight:700;
+  cursor:pointer;border:none;transition:all .2s;
+  display:inline-flex;align-items:center;gap:6px;letter-spacing:.3px;
+}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#a07830);color:#0d1117;}
+.btn-gold:hover{box-shadow:0 4px 16px rgba(201,168,76,.4);transform:translateY(-1px);}
+.btn-green{background:linear-gradient(135deg,var(--green),#008a52);color:#fff;}
+.btn-green:hover{box-shadow:0 4px 16px rgba(0,201,122,.35);transform:translateY(-1px);}
+.btn-ghost{background:transparent;border:1px solid rgba(201,168,76,.25);color:var(--gold);}
+.btn-ghost:hover{background:rgba(201,168,76,.08);}
+.btn-red{background:rgba(224,85,85,.15);border:1px solid rgba(224,85,85,.3);color:#ff8080;}
+.btn-red:hover{background:rgba(224,85,85,.25);}
+.btn-sm{padding:5px 10px;font-size:11px;}
+
+/* ── FORM ── */
+.fr{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
+.ff{flex:1;min-width:160px;}
+.ff label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:6px;}
+.ff input,.ff select,.ff textarea{
+  width:100%;background:rgba(13,17,23,.8);border:1px solid var(--border);
+  border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;
+  font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;
+}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--gold);}
+.ff select option{background:#111820;}
+
+/* ── BADGE ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+.bg{background:rgba(0,201,122,.12);color:var(--green);border:1px solid rgba(0,201,122,.25);}
+.bo{background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.25);}
+.bb{background:rgba(74,158,255,.12);color:var(--blue);border:1px solid rgba(74,158,255,.25);}
+.br{background:rgba(224,85,85,.12);color:#ff8080;border:1px solid rgba(224,85,85,.25);}
+
+/* ── FILTER ROW ── */
+.frow{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
+.frow select,.frow input{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:7px;padding:8px 12px;color:var(--text);font-size:12px;
+  font-family:'Inter',sans-serif;outline:none;
+}
+.frow select:focus,.frow input:focus{border-color:var(--gold);}
+.frow select option{background:#111820;}
+
+/* ── POS BILLING ── */
+.pos-grid{display:grid;grid-template-columns:1fr 400px;gap:18px;height:calc(100vh - 110px);}
+.pos-left{display:flex;flex-direction:column;gap:14px;overflow:hidden;}
+.catalog-wrap{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  flex:1;padding:18px;overflow:hidden;display:flex;flex-direction:column;
+}
+.catalog-title{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;}
+.catalog-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  overflow-y:auto;flex:1;
+  padding-right:4px;
+}
+.svc-chip{
+  background:var(--card2);border:1px solid var(--border);border-radius:8px;
+  padding:14px;cursor:pointer;transition:all .2s;
+}
+.svc-chip:hover{border-color:var(--gold);background:rgba(201,168,76,.07);}
+.svc-chip.sel{border-color:var(--green);background:rgba(0,201,122,.07);}
+.svc-chip .cn{font-size:12px;font-weight:700;margin-bottom:4px;}
+.svc-chip .cp{font-size:14px;font-weight:800;color:var(--gold);}
+.svc-chip .cc{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* Basket */
+.basket{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  display:flex;flex-direction:column;height:calc(100vh - 110px);overflow:hidden;
+}
+.basket-title{font-size:14px;font-weight:700;color:var(--gold);margin-bottom:16px;}
+.basket-cust{display:flex;gap:10px;margin-bottom:14px;}
+.basket-cust input{
+  flex:1;background:var(--card2);border:1px solid var(--border);
+  border-radius:7px;padding:10px 12px;color:var(--text);font-size:13px;
+  font-family:'Inter',sans-serif;outline:none;
+}
+.basket-cust input:focus{border-color:var(--gold);}
+.basket-hdr{
+  display:grid;grid-template-columns:1fr auto auto;gap:8px;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  color:var(--muted);padding:0 4px 8px;border-bottom:1px solid var(--border);
+}
+.basket-items{flex:1;overflow-y:auto;margin:8px 0;}
+.bi{
+  display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;
+  padding:9px 4px;border-bottom:1px solid rgba(30,45,61,.5);font-size:13px;
+}
+.bi:last-child{border-bottom:none;}
+.bi .bn{font-weight:600;}
+.bi .bp{color:var(--gold);font-weight:700;}
+.bi .bdel{background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;padding:0;line-height:1;}
+.bi .bdel:hover{color:#ff8080;}
+.basket-foot{border-top:1px solid var(--border);padding-top:14px;margin-top:auto;}
+.bf-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;align-items:center;}
+.bf-row.total{font-size:17px;font-weight:800;color:var(--green);margin-top:4px;padding-top:10px;border-top:1px solid var(--border);}
+.disc-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;}
+.disc-row label{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap;}
+.disc-row select{
+  background:var(--card2);border:1px solid var(--border);border-radius:6px;
+  padding:7px 10px;color:var(--text);font-size:12px;font-family:'Inter',sans-serif;outline:none;
+}
+.disc-row input{
+  background:var(--card2);border:1px solid var(--border);border-radius:6px;
+  padding:7px 10px;color:var(--text);font-size:12px;width:80px;font-family:'Inter',sans-serif;outline:none;
+}
+.disc-row select:focus,.disc-row input:focus{border-color:var(--gold);}
+.disc-row select option{background:#111820;}
+.pay-select{
+  width:100%;background:var(--card2);border:1px solid var(--border);
+  border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;
+  font-family:'Inter',sans-serif;outline:none;margin-bottom:12px;
+}
+.pay-select:focus{border-color:var(--gold);}
+.pay-select option{background:#111820;}
+.save-btn{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--green),#007a4a);
+  border:none;border-radius:8px;color:#fff;font-weight:800;font-size:14px;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+  letter-spacing:.3px;
+}
+.save-btn:hover{box-shadow:0 6px 20px rgba(0,201,122,.4);transform:translateY(-1px);}
+.disabled-layer{pointer-events:none;opacity:.3;filter:grayscale(.4);}
+
+/* ── SERVICES MGMT ── */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.svc-card{
+  background:var(--card2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;
+}
+.svc-card .sc-cat{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.svc-card h4{font-size:14px;font-weight:700;margin-bottom:6px;}
+.svc-card .sc-price{font-size:20px;font-weight:800;color:var(--gold);margin-bottom:10px;}
+.svc-card .sc-dur{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.sca{display:flex;gap:8px;}
+
+/* ── MODAL ── */
+.mo{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);
+  z-index:500;align-items:center;justify-content:center;
+}
+.mo.open{display:flex;}
+.md{
+  background:var(--card2);border:1px solid rgba(201,168,76,.2);
+  border-radius:16px;padding:28px;width:500px;max-width:92vw;
+  max-height:90vh;overflow-y:auto;position:relative;
+}
+.md h3{font-size:18px;font-weight:700;color:var(--gold);margin-bottom:22px;}
+.mclose{
+  position:absolute;top:14px;right:16px;
+  background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;
+}
+.mclose:hover{color:var(--text);}
+.mfoot{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;}
+
+/* ── RECEIPT ── */
+.receipt{
+  background:#fff;color:#111;border-radius:8px;padding:22px;
+  font-family:monospace;font-size:12px;line-height:1.8;
+}
+.receipt h4{text-align:center;font-size:16px;margin-bottom:2px;}
+.receipt .rs{text-align:center;font-size:10px;color:#666;margin-bottom:14px;}
+.receipt .rl{display:flex;justify-content:space-between;}
+.receipt hr{border:none;border-top:1px dashed #ccc;margin:8px 0;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,.25);border-radius:4px;}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--card2);border:1px solid rgba(201,168,76,.3);
+  border-radius:9px;padding:12px 18px;font-size:13px;z-index:9999;
+  transform:translateY(80px);opacity:0;transition:all .3s;
+  display:flex;align-items:center;gap:8px;max-width:300px;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-color:rgba(0,201,122,.35);}
+.toast.err{border-color:rgba(224,85,85,.35);color:#ff8080;}
+
+.sec-title{
+  font-family:'Playfair Display',serif;font-size:20px;font-weight:700;
+  margin-bottom:18px;
+}
+.empty{text-align:center;padding:40px;color:var(--muted);}
+.empty .ei{font-size:40px;display:block;margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="loginPage">
+  <div class="lc">
+    <div class="lc-logo">
+      <span class="scissors">✂️</span>
+      <div class="brand">Creo Corp</div>
+      <div class="sub">Saloon Billing</div>
+    </div>
+    <div class="lerr" id="lerr">Invalid username or password.</div>
+    <div class="lfield">
+      <label>Username</label>
+      <input type="text" id="luser" placeholder="Enter username" autocomplete="off">
+    </div>
+    <div class="lfield">
+      <label>Password</label>
+      <input type="password" id="lpass" placeholder="Enter password">
+    </div>
+    <button class="lbtn" onclick="doLogin()">Sign In →</button>
+    <div class="lhint">
+      Demo: <span>admin / admin123</span> &nbsp;|&nbsp;
+      <span>billing1 / bill123</span> &nbsp;|&nbsp;
+      <span>billing2 / bill456</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="b1">Creo Corp</div>
+      <div class="b2">Saloon Billing</div>
+    </div>
+    <nav class="sb-nav" id="sbNav"></nav>
+    <div class="sb-foot">
+      <div class="ub">
+        <div class="ua" id="sbAvatar">?</div>
+        <div class="ui">
+          <p id="sbName">—</p>
+          <span id="sbRole">—</span>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Logout ➜]</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="tbTitle">Dashboard</div>
+      <div class="topbar-right">
+        <div class="biz-toggle" id="bizToggle" style="display:none;">
+          <span class="tl offline" id="bizLabel">BUSINESS OFFLINE</span>
+          <label class="sw">
+            <input type="checkbox" id="bizSwitch" onchange="toggleBiz(this)">
+            <span class="sws"></span>
+          </label>
+        </div>
+        <div style="font-size:11px;color:var(--muted);" id="tbDate"></div>
+      </div>
+    </div>
+
+    <div class="content" id="mainContent">
+
+      <!-- ── ADMIN DASHBOARD ── -->
+      <div class="panel" id="p-admin-dashboard">
+        <div class="sec-title">📊 Dashboard Overview</div>
+        <div class="frow">
+          <select id="adFilter" onchange="loadAdminDash()">
+            <option value="day">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
+          <select id="adUser" onchange="loadAdminDash()">
+            <option value="all">All Users</option>
+            <option value="billing1">Counter Cashier Terminal 1</option>
+            <option value="billing2">Counter Cashier Terminal 2</option>
+          </select>
+        </div>
+        <div class="sg">
+          <div class="sc g"><div class="si">💰</div><div class="sv" id="adRev">₹0</div><div class="sl">Net Revenue</div></div>
+          <div class="sc gr"><div class="si">🧾</div><div class="sv" id="adBills">0</div><div class="sl">Transactions</div></div>
+          <div class="sc bl"><div class="si">👤</div><div class="sv" id="adCusts">0</div><div class="sl">Customers</div></div>
+          <div class="sc rd"><div class="si">✂️</div><div class="sv" id="adSvcs">0</div><div class="sl">Services Done</div></div>
+        </div>
+        <div class="cg">
+          <div class="card">
+            <div class="ch"><span class="ct">Revenue by Service</span></div>
+            <div class="cwrap"><canvas id="pieChart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="ch"><span class="ct">Revenue Trend</span></div>
+            <div class="cwrap"><canvas id="barChart"></canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct">Recent Transactions</span></div>
+          <table>
+            <thead><tr><th>Date & Time</th><th>Customer</th><th>Services</th><th>Terminal</th><th>Amount</th><th>Mode</th></tr></thead>
+            <tbody id="adTxBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ADMIN SALES ── -->
+      <div class="panel" id="p-admin-sales">
+        <div class="sec-title">📈 Sales Reports</div>
+        <div class="frow">
+          <select id="salPeriod" onchange="loadSales()">
+            <option value="day">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
+          <select id="salUser" onchange="loadSales()">
+            <option value="all">All Terminals</option>
+            <option value="billing1">Terminal 1</option>
+            <option value="billing2">Terminal 2</option>
+          </select>
+          <button class="btn btn-ghost" onclick="dlSales()">⬇ Download CSV</button>
+        </div>
+        <div class="sg" id="salStats"></div>
+        <div class="card">
+          <div class="ch"><span class="ct">All Transactions</span></div>
+          <table>
+            <thead><tr><th>Date/Time</th><th>Customer</th><th>Phone</th><th>Services</th><th>Discount</th><th>Total</th><th>Mode</th><th>Terminal</th><th>Actions</th></tr></thead>
+            <tbody id="salBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ADMIN CUSTOMERS ── -->
+      <div class="panel" id="p-admin-customers">
+        <div class="sec-title">👥 Customer Database</div>
+        <div class="frow">
+          <input type="text" id="custSrch" placeholder="Search by name or phone…" oninput="loadCustomers()" style="min-width:220px;">
+          <button class="btn btn-ghost" onclick="dlCustomers()">⬇ Download CSV</button>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>Visits</th><th>Total Spent</th><th>Last Visit</th><th>History</th><th>Actions</th></tr></thead>
+            <tbody id="custBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ADMIN EXPENSES ── -->
+      <div class="panel" id="p-admin-expenses">
+        <div class="sec-title">💸 Expenses Report</div>
+        <div class="frow">
+          <select id="expPeriod" onchange="loadAdminExpenses()">
+            <option value="day">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
+          <select id="expUser" onchange="loadAdminExpenses()">
+            <option value="all">All Users</option>
+            <option value="billing1">Terminal 1</option>
+            <option value="billing2">Terminal 2</option>
+          </select>
+          <select id="expCatFilter" onchange="loadAdminExpenses()">
+            <option value="all">All Categories</option>
+            <option>Product Purchase</option><option>Utilities</option><option>Maintenance</option>
+            <option>Salary</option><option>Rent</option><option>Marketing</option><option>Other</option>
+          </select>
+          <button class="btn btn-ghost" onclick="dlExpenses()">⬇ Download CSV</button>
+        </div>
+        <div class="sg" id="expStats"></div>
+        <div class="card">
+          <div class="ch"><span class="ct">All Expense Entries</span></div>
+          <table>
+            <thead><tr><th>Date/Time</th><th>Description</th><th>Category</th><th>Mode</th><th>Amount</th><th>Note</th><th>Recorded By</th><th>Action</th></tr></thead>
+            <tbody id="adminExpBody"></tbody>
+          </table>
+        </div>
+      </div>
+ 
+      <!-- ── ADMIN PAYMENT MODES ── -->
+      <div class="panel" id="p-admin-payments">
+        <div class="sec-title">💳 Payment Mode Report</div>
+        <div class="frow">
+          <select id="pmPeriod" onchange="loadPaymentReport()">
+            <option value="day">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
+          <select id="pmUser" onchange="loadPaymentReport()">
+            <option value="all">All Terminals</option>
+            <option value="billing1">Terminal 1</option>
+            <option value="billing2">Terminal 2</option>
+          </select>
+          <button class="btn btn-ghost" onclick="dlPaymentReport()">⬇ Download CSV</button>
+        </div>
+        <div class="sg" id="pmStats"></div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-bottom:18px;" id="pmCards"></div>
+        <div class="card">
+          <div class="ch"><span class="ct">All Transactions by Payment Mode</span></div>
+          <table>
+            <thead><tr><th>Date/Time</th><th>Customer</th><th>Services</th><th>Total</th><th>Payment Mode</th><th>Terminal</th></tr></thead>
+            <tbody id="pmBody"></tbody>
+          </table>
+        </div>
+      </div>
+ 
+      <!-- ── ADMIN SERVICES ── -->
+      <div class="panel" id="p-admin-services">
+        <div class="sec-title">⚙️ Services</div>
+        <div style="margin-bottom:16px;"><button class="btn btn-gold" onclick="openSvcModal()">+ Add Service</button></div>
+        <div class="svc-grid" id="adminSvcGrid"></div>
+      </div>
+
+      <!-- ── BILLING POS ── -->
+      <div class="panel" id="p-billing">
+        <div id="offlineMsg" style="display:none;margin-bottom:16px;">
+          <div style="background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.3);border-radius:10px;padding:18px 20px;color:#ff8080;font-size:13px;font-weight:600;">
+            ⚠️ Terminal is OFFLINE — Switch to <strong>BUSINESS ONLINE</strong> to start billing.
+          </div>
+        </div>
+        <div class="pos-grid" id="posContent">
+          <div class="pos-left">
+            <div class="catalog-wrap">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <div class="catalog-title">Treatment Catalog Menu</div>
+                <input type="text" id="svcSearch" placeholder="Search…" oninput="filterChips()"
+                  style="background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;width:130px;outline:none;">
+              </div>
+              <div class="catalog-grid" id="catalogGrid"></div>
+            </div>
+          </div>
+
+          <!-- Basket -->
+          <div class="basket">
+            <div class="basket-title">Active Work Order Basket</div>
+            <div class="basket-cust">
+              <input type="text" id="bCustName" placeholder="Customer Name">
+              <input type="text" id="bCustPhone" placeholder="Mobile Number">
+            </div>
+            <div class="basket-hdr">
+              <span>Item Service</span><span>Rate Price</span><span>Action</span>
+            </div>
+            <div class="basket-items" id="basketItems">
+              <div style="text-align:center;color:var(--muted);font-size:12px;padding:24px 0;">No items added</div>
+            </div>
+            <div class="basket-foot">
+              <div class="bf-row"><span>Basket Total Subtotal:</span><span id="bSubtotal">₹0.00</span></div>
+              <div class="disc-row">
+                <label>Apply Dis:</label>
+                <select id="discType" onchange="calcBill()">
+                  <option value="rupees">₹</option>
+                  <option value="percent">%</option>
+                </select>
+                <input type="number" id="discVal" value="0" min="0" oninput="calcBill()" placeholder="0">
+              </div>
+              <div class="bf-row" style="color:var(--green);"><span>Authorized Discounts Value:</span><span id="bDisc">₹0.00</span></div>
+              <div class="bf-row total"><span>Net Payable Total:</span><span id="bTotal">₹0.00</span></div>
+              <select class="pay-select" id="payMode">
+                <option>Cash</option><option>UPI</option><option>Card</option><option>Net Banking</option>
+              </select>
+              <button class="save-btn" onclick="saveBill()">💾 Complete and Save Transaction</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today bills -->
+        <div class="card" style="margin-top:16px;">
+          <div class="ch"><span class="ct">Today's Transactions</span></div>
+          <table>
+            <thead><tr><th>Time</th><th>Customer</th><th>Services</th><th>Discount</th><th>Total</th><th>Mode</th></tr></thead>
+            <tbody id="todayBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── BILLING EXPENSES ── -->
+      <div class="panel" id="p-billing-expenses">
+        <div class="sec-title">💸 Record Expenses</div>
+        <div class="card">
+          <div class="ch"><span class="ct">Add New Expense</span></div>
+          <div class="fr">
+            <div class="ff"><label>Expense Description *</label><input type="text" id="expDesc" placeholder="e.g. Shampoo purchase, Electricity bill…"></div>
+            <div class="ff" style="max-width:180px;"><label>Category</label>
+              <select id="expCat">
+                <option>Product Purchase</option><option>Utilities</option><option>Maintenance</option>
+                <option>Salary</option><option>Rent</option><option>Marketing</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="fr">
+            <div class="ff" style="max-width:180px;"><label>Amount (₹) *</label><input type="number" id="expAmt" placeholder="0" min="0"></div>
+            <div class="ff" style="max-width:180px;"><label>Payment Mode</label>
+              <select id="expMode">
+                <option>Cash</option><option>UPI</option><option>Card</option><option>Net Banking</option>
+              </select>
+            </div>
+            <div class="ff" style="max-width:200px;"><label>Note (optional)</label><input type="text" id="expNote" placeholder="Additional note…"></div>
+          </div>
+          <button class="btn btn-gold" onclick="saveExpense()">+ Save Expense</button>
+        </div>
+        <div class="card" style="margin-top:4px;">
+          <div class="ch"><span class="ct">My Expenses Today</span></div>
+          <table>
+            <thead><tr><th>Time</th><th>Description</th><th>Category</th><th>Mode</th><th>Amount</th><th>Note</th></tr></thead>
+            <tbody id="myExpBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── BILLING SERVICES ── -->
+      <div class="panel" id="p-billing-services">
+        <div class="sec-title">✂️ Services</div>
+        <div style="margin-bottom:16px;"><button class="btn btn-gold" onclick="openSvcModal()">+ Add Treatment</button></div>
+        <div class="svc-grid" id="billSvcGrid"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── SERVICE MODAL ── -->
+<div class="mo" id="svcModal">
+  <div class="md">
+    <button class="mclose" onclick="closeModal('svcModal')">×</button>
+    <h3 id="svcModalTitle">Add Treatment</h3>
+    <div class="fr">
+      <div class="ff"><label>Service Name *</label><input type="text" id="sName" placeholder="e.g. Haircut (Men)"></div>
+      <div class="ff"><label>Category</label>
+        <select id="sCat">
+          <option>Hair</option><option>Skin</option><option>Beard</option>
+          <option>Nails</option><option>Spa</option><option>Makeup</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="fr">
+      <div class="ff"><label>Price (₹) *</label><input type="number" id="sPrice" placeholder="0" min="0"></div>
+      <div class="ff"><label>Duration (min)</label><input type="number" id="sDur" placeholder="30" min="1"></div>
+    </div>
+    <div class="ff" style="margin-bottom:18px;"><label>Description</label><textarea id="sDesc" rows="2" placeholder="Short description…"></textarea></div>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="closeModal('svcModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveSvc()">Save Treatment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CUSTOMER HISTORY MODAL ── -->
+<div class="mo" id="histModal">
+  <div class="md" style="width:620px;max-width:95vw;">
+    <button class="mclose" onclick="closeModal('histModal')">×</button>
+    <h3 id="histTitle">Purchase History</h3>
+    <table>
+      <thead><tr><th>Date & Time</th><th>Services</th><th>Discount</th><th>Total</th><th>Mode</th></tr></thead>
+      <tbody id="histBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── RECEIPT MODAL ── -->
+<div class="mo" id="rcptModal">
+  <div class="md" style="width:380px;">
+    <button class="mclose" onclick="closeModal('rcptModal')">×</button>
+    <h3>Transaction Saved ✅</h3>
+    <div class="receipt" id="rcptContent"></div>
+    <div class="mfoot"><button class="btn btn-ghost" onclick="closeModal('rcptModal')">Close</button></div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════
+   USERS
+════════════════════════════════ */
+const USERS={
+  admin:   {pass:'admin123',role:'admin',   name:'Administrator',    id:'admin'},
+  billing1:{pass:'bill123', role:'billing', name:'Counter Cashier Terminal 1',id:'billing1'},
+  billing2:{pass:'bill456', role:'billing', name:'Counter Cashier Terminal 2',id:'billing2'},
+};
+
+/* ════════════════════════════════
+   STORAGE HELPERS
+════════════════════════════════ */
+const S=(k)=>JSON.parse(localStorage.getItem(k)||'null');
+const SS=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+
+/* ════════════════════════════════
+   SEED SERVICES
+════════════════════════════════ */
+if(!S('gc_svcs')){
+  SS('gc_svcs',[
+    {id:'s1',name:'Haircut (Men)',cat:'Hair',  price:150,dur:30,desc:'Classic precision cut'},
+    {id:'s2',name:'Hair Spa',     cat:'Hair',  price:700,dur:90,desc:'Nourishing hair spa'},
+    {id:'s3',name:'Threading',    cat:'Skin',  price:60, dur:15,desc:'Eyebrow & face threading'},
+    {id:'s4',name:'Hair Cut',     cat:'Hair',  price:150,dur:30,desc:'Ladies haircut'},
+    {id:'s5',name:'Shave & Trim', cat:'Beard', price:120,dur:20,desc:'Beard shave & styling'},
+    {id:'s6',name:'Facial',       cat:'Skin',  price:600,dur:60,desc:'Brightening facial'},
+    {id:'s7',name:'Manicure',     cat:'Nails', price:400,dur:45,desc:'Classic manicure'},
+    {id:'s8',name:'Pedicure',     cat:'Nails', price:450,dur:50,desc:'Relaxing pedicure'},
+    {id:'s9',name:'Full Body Spa',cat:'Spa',   price:1200,dur:120,desc:'Luxury body spa'},
+  ]);
+}
+if(!S('gc_bills')) SS('gc_bills',[]);
+
+/* Seed sample bills */
+(function seedBills(){
+  if(S('gc_seeded')) return;
+  const svcs=S('gc_svcs');
+  const names=['Priya Sharma','Meena Patel','Sunita Rao','Kavya Reddy','Anjali Devi','Rekha Nair','Pooja Singh','Deepa Kumar','Vani Murthy','Saroja Devi'];
+  const phones=['9876543210','9812345678','9823456789','9834567890','9845678901','9856789012','9867890123','9878901234','9889012345','9890123456'];
+  const bills=[];
+  const now=new Date();
+  for(let i=0;i<40;i++){
+    const d=new Date(now);
+    d.setDate(now.getDate()-Math.floor(Math.random()*30));
+    d.setHours(9+Math.floor(Math.random()*10),Math.floor(Math.random()*60));
+    const cnt=Math.floor(Math.random()*3)+1;
+    const sel=svcs.slice(0,svcs.length).sort(()=>Math.random()-.5).slice(0,cnt);
+    const sub=sel.reduce((s,x)=>s+x.price,0);
+    const disc=Math.random()>.6?Math.floor(sub*.1):0;
+    const uid=['billing1','billing2'][Math.floor(Math.random()*2)];
+    const ni=Math.floor(Math.random()*names.length);
+    bills.push({
+      id:'bs'+i,ts:d.toISOString(),
+      custName:names[ni],custPhone:phones[ni],
+      services:sel,discType:'rupees',discVal:disc,discount:disc,
+      subtotal:sub,total:sub-disc,
+      payMode:['Cash','UPI','Card'][Math.floor(Math.random()*3)],
+      billedBy:uid,billedByName:uid==='billing1'?'Terminal 1':'Terminal 2',
+    });
+  }
+  SS('gc_bills',bills);
+  SS('gc_seeded',true);
+})();
+
+/* ════════════════════════════════
+   STATE
+════════════════════════════════ */
+let CU=null, isOnline=false, cart=[], editSvcId=null;
+let pieInst=null, barInst=null;
+
+/* ════════════════════════════════
+   AUTH
+════════════════════════════════ */
+function doLogin(){
+  const u=document.getElementById('luser').value.trim();
+  const p=document.getElementById('lpass').value;
+  const err=document.getElementById('lerr');
+  if(!USERS[u]||USERS[u].pass!==p){err.style.display='block';return;}
+  err.style.display='none';
+  CU={...USERS[u],username:u};
+  startApp();
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('loginPage').style.display!=='none') doLogin();
+});
+function doLogout(){
+  if(CU?.role==='billing'&&isOnline) setBiz(false);
+  CU=null;isOnline=false;cart=[];
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('luser').value='';
+  document.getElementById('lpass').value='';
+}
+
+/* ════════════════════════════════
+   APP INIT
+════════════════════════════════ */
+function startApp(){
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('sbName').textContent=CU.name;
+  document.getElementById('sbRole').textContent=CU.role==='admin'?'ADMIN ACCESS':'BILLING PERMISSIONS';
+  document.getElementById('sbAvatar').textContent=CU.name[0];
+  document.getElementById('tbDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  const bt=document.getElementById('bizToggle');
+  bt.style.display=CU.role==='billing'?'flex':'none';
+  if(CU.role==='billing'){document.getElementById('bizSwitch').checked=false;updateBizUI(false);}
+  buildNav();
+  go(CU.role==='admin'?'admin-dashboard':'billing');
+}
+
+function buildNav(){
+  const nav=document.getElementById('sbNav');nav.innerHTML='';
+  const menus=CU.role==='admin'
+    ?[{id:'admin-dashboard',icon:'📊',label:'Dashboard'},
+      {id:'admin-sales',icon:'📈',label:'Sales Reports'},
+      {id:'admin-customers',icon:'👥',label:'Customers'},
+      {id:'admin-expenses',icon:'💸',label:'Expenses Report'},
+      {id:'admin-payments',icon:'💳',label:'Payment Modes'},
+      {id:'admin-services',icon:'⚙️',label:'Services'}]
+    :[{id:'billing',icon:'🧾',label:'POS Billing Terminal'},
+      {id:'billing-expenses',icon:'💸',label:'Expenses'},
+      {id:'billing-services',icon:'✂️',label:'Services'}];
+  menus.forEach(m=>{
+    const el=document.createElement('div');
+    el.className='ni';el.id='ni-'+m.id;
+    el.innerHTML=`<span class="ni-icon">${m.icon}</span><span>${m.label}</span>`;
+    el.onclick=()=>go(m.id);
+    nav.appendChild(el);
+  });
+}
+
+function go(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const panel=document.getElementById('p-'+id);
+  if(panel)panel.classList.add('active');
+  const ni=document.getElementById('ni-'+id);
+  if(ni)ni.classList.add('active');
+  const titles={'admin-dashboard':'Dashboard Overview','admin-sales':'Sales Reports',
+    'admin-customers':'Customer Database','admin-services':'Services',
+    'admin-expenses':'Expenses Report','admin-payments':'Payment Mode Report',
+    'billing':'POS Billing Terminal Workstation','billing-services':'Services',
+    'billing-expenses':'Record Expenses'};
+  document.getElementById('tbTitle').textContent=titles[id]||id;
+  if(id==='admin-dashboard') loadAdminDash();
+  if(id==='admin-sales') loadSales();
+  if(id==='admin-customers') loadCustomers();
+  if(id==='admin-services') renderSvcGrid('adminSvcGrid');
+  if(id==='admin-expenses') loadAdminExpenses();
+  if(id==='admin-payments') loadPaymentReport();
+  if(id==='billing'){renderChips();renderToday();}
+  if(id==='billing-services') renderSvcGrid('billSvcGrid');
+  if(id==='billing-expenses') renderMyExpenses();
+}
+
+/* ════════════════════════════════
+   ONLINE / OFFLINE
+════════════════════════════════ */
+function toggleBiz(el){setBiz(el.checked);}
+function setBiz(on){
+  isOnline=on;
+  updateBizUI(on);
+  if(!on&&CU?.role==='billing') sendEmailReport();
+}
+function updateBizUI(on){
+  const lbl=document.getElementById('bizLabel');
+  const sw=document.getElementById('bizSwitch');
+  sw.checked=on;
+  lbl.textContent=on?'BUSINESS ONLINE':'BUSINESS OFFLINE';
+  lbl.className='tl '+(on?'online':'offline');
+  const pc=document.getElementById('posContent');
+  const om=document.getElementById('offlineMsg');
+  if(pc){pc.classList.toggle('disabled-layer',!on);om.style.display=on?'none':'block';}
+}
+function sendEmailReport(){
+  const today=new Date().toDateString();
+  const bills=(S('gc_bills')||[]).filter(b=>new Date(b.ts).toDateString()===today&&b.billedBy===CU.id);
+  const total=bills.reduce((s,b)=>s+b.total,0);
+  const logs=S('gc_email_logs')||[];
+  logs.push({ts:new Date().toISOString(),user:CU.id,bills:bills.length,total,to:'andigitalmount@gmail.com'});
+  SS('gc_email_logs',logs);
+  console.log(`📧 Daily report → andigitalmount@gmail.com | ${CU.name} | Bills:${bills.length} | ₹${total.toFixed(2)}`);
+  toast(`📧 Daily sales report sent to andigitalmount@gmail.com`,'ok');
+}
+
+/* ════════════════════════════════
+   BILLING
+════════════════════════════════ */
+function sendEmailReport(){
+  const today = new Date().toDateString();
+  const bills = (S('gc_bills') || []).filter(b => new Date(b.ts).toDateString() === today && b.billedBy === CU.id);
+  const total = bills.reduce((s, b) => s + b.total, 0);
+  
+  // Package metrics structural properties securely matching backend keys
+  const payload = {
+    billedBy: CU.id,
+    totalBills: bills.length,
+    netRevenue: total
+  };
+
+  // Route async request execution to server relative location path setup
+  fetch('send_daily_report.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if(data.status === 'success') {
+      toast(`📧 Daily sales report routed to Admin endpoint securely`, 'ok');
+    } else {
+      toast(`⚠️ Report delivery delay: ` + data.message, 'err');
+    }
+  })
+  .catch(error => {
+    console.error('Network Error:', error);
+    toast(`⚠️ Connectivity failure processing report data`, 'err');
+  });
+
+  // Keep local debugging history array log entries unaltered
+  const logs = S('gc_email_logs') || [];
+  logs.push({ts: new Date().toISOString(), user: CU.id, bills: bills.length, total, to: 'andigitalmount@gmail.com'}); //
+  SS('gc_email_logs', logs); //
+}
+
+/* ════════════════════════════════
+   SERVICES
+════════════════════════════════ */
+function getSvcs(){return S('gc_svcs')||[];}
+function renderSvcGrid(gid){
+  const g=document.getElementById(gid);
+  const svcs=getSvcs();
+  if(!svcs.length){g.innerHTML='<div class="empty"><span class="ei">✂️</span>No services yet.</div>';return;}
+  g.innerHTML=svcs.map(s=>`
+    <div class="svc-card">
+      <div class="sc-cat">📂 ${s.cat}</div>
+      <h4>${s.name}</h4>
+      <div class="sc-price">₹${s.price}.00</div>
+      <div class="sc-dur">⏱ ${s.dur||30} minutes</div>
+      ${s.desc?`<p style="font-size:11px;color:var(--muted);margin-bottom:10px;">${s.desc}</p>`:''}
+      <div class="sca">
+        <button class="btn btn-ghost btn-sm" onclick="openSvcModal('${s.id}')">✏️ Edit</button>
+        <button class="btn btn-red btn-sm" onclick="delSvc('${s.id}')">🗑 Del</button>
+      </div>
+    </div>`).join('');
+}
+function openSvcModal(id){
+  editSvcId=id||null;
+  document.getElementById('svcModalTitle').textContent=id?'Edit Treatment':'Add Treatment';
+  if(id){
+    const s=getSvcs().find(x=>x.id===id);
+    if(s){
+      document.getElementById('sName').value=s.name;
+      document.getElementById('sCat').value=s.cat;
+      document.getElementById('sPrice').value=s.price;
+      document.getElementById('sDur').value=s.dur||30;
+      document.getElementById('sDesc').value=s.desc||'';
+    }
+  } else {
+    ['sName','sPrice','sDur','sDesc'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('sCat').value='Hair';
+  }
+  openModal('svcModal');
+}
+function saveSvc(){
+  const name=document.getElementById('sName').value.trim();
+  const price=parseFloat(document.getElementById('sPrice').value);
+  if(!name||isNaN(price)){toast('Name & Price required','err');return;}
+  const cat=document.getElementById('sCat').value;
+  const dur=parseInt(document.getElementById('sDur').value)||30;
+  const desc=document.getElementById('sDesc').value.trim();
+  let svcs=getSvcs();
+  if(editSvcId){
+    svcs=svcs.map(s=>s.id===editSvcId?{...s,name,price,cat,dur,desc}:s);
+    toast('Service updated ✅','ok');
+  } else {
+    svcs.push({id:'svc_'+Date.now(),name,price,cat,dur,desc});
+    toast('Service added ✅','ok');
+  }
+  SS('gc_svcs',svcs);
+  closeModal('svcModal');
+  ['adminSvcGrid','billSvcGrid'].forEach(renderSvcGrid);
+  renderChips();
+}
+function delSvc(id){
+  if(!confirm('Delete this service?'))return;
+  SS('gc_svcs',getSvcs().filter(s=>s.id!==id));
+  ['adminSvcGrid','billSvcGrid'].forEach(renderSvcGrid);
+  renderChips();
+  toast('Service deleted','ok');
+}
+
+/* ════════════════════════════════
+   BILLING
+════════════════════════════════ */
+function renderChips(){
+  const q=(document.getElementById('svcSearch')?.value||'').toLowerCase();
+  const g=document.getElementById('catalogGrid');
+  const svcs=getSvcs().filter(s=>s.name.toLowerCase().includes(q)||s.cat.toLowerCase().includes(q));
+  g.innerHTML=svcs.map(s=>`
+    <div class="svc-chip ${cart.find(c=>c.id===s.id)?'sel':''}" onclick="toggleCart('${s.id}')">
+      <div class="cn">${s.name}</div>
+      <div class="cp">₹${s.price}.00</div>
+      <div class="cc">${s.cat}</div>
+    </div>`).join('');
+}
+function filterChips(){renderChips();}
+
+function toggleCart(id){
+  if(!isOnline){toast('Switch to Business Online first','err');return;}
+  const svc=getSvcs().find(s=>s.id===id);if(!svc)return;
+  const idx=cart.findIndex(c=>c.id===id);
+  if(idx>=0)cart.splice(idx,1);
+  else cart.push({...svc});
+  renderChips();renderBasket();
+}
+function renderBasket(){
+  const el=document.getElementById('basketItems');
+  if(!cart.length){
+    el.innerHTML='<div style="text-align:center;color:var(--muted);font-size:12px;padding:24px 0;">No items added</div>';
+  } else {
+    el.innerHTML=cart.map(c=>`
+      <div class="bi">
+        <span class="bn">${c.name}</span>
+        <span class="bp">₹${c.price}.00</span>
+        <button class="bdel" onclick="rmCart('${c.id}')">×</button>
+      </div>`).join('');
+  }
+  calcBill();
+}
+function rmCart(id){cart=cart.filter(c=>c.id!==id);renderChips();renderBasket();}
+function calcBill(){
+  const sub=cart.reduce((s,c)=>s+c.price,0);
+  const dt=document.getElementById('discType')?.value||'rupees';
+  const dv=parseFloat(document.getElementById('discVal')?.value)||0;
+  let disc=dt==='percent'?(sub*dv/100):dv;
+  disc=Math.min(Math.max(disc,0),sub);
+  const total=sub-disc;
+  document.getElementById('bSubtotal').textContent='₹'+sub.toFixed(2);
+  document.getElementById('bDisc').textContent='₹'+disc.toFixed(2);
+  document.getElementById('bTotal').textContent='₹'+total.toFixed(2);
+}
+function saveBill(){
+  if(!isOnline){toast('Switch to Business Online first','err');return;}
+  const cn=document.getElementById('bCustName').value.trim();
+  const cp=document.getElementById('bCustPhone').value.trim();
+  if(!cn){toast('Customer name required','err');return;}
+  if(!cart.length){toast('Add at least one service','err');return;}
+  const sub=cart.reduce((s,c)=>s+c.price,0);
+  const dt=document.getElementById('discType').value;
+  const dv=parseFloat(document.getElementById('discVal').value)||0;
+  let disc=dt==='percent'?(sub*dv/100):dv;
+  disc=Math.min(Math.max(disc,0),sub);
+  const total=sub-disc;
+  const pm=document.getElementById('payMode').value;
+  const bill={
+    id:'bill_'+Date.now(),ts:new Date().toISOString(),
+    custName:cn,custPhone:cp,services:[...cart],
+    discType:dt,discVal:dv,discount:disc,
+    subtotal:sub,total,payMode:pm,
+    billedBy:CU.id,billedByName:CU.name,
+  };
+  const bills=S('gc_bills')||[];bills.push(bill);SS('gc_bills',bills);
+  showReceipt(bill);
+  cart=[];
+  document.getElementById('bCustName').value='';
+  document.getElementById('bCustPhone').value='';
+  document.getElementById('discVal').value='0';
+  renderChips();renderBasket();renderToday();
+  toast('Transaction saved successfully ✅','ok');
+}
+function showReceipt(b){
+  const dt=new Date(b.ts).toLocaleString('en-IN');
+  document.getElementById('rcptContent').innerHTML=`
+    <h4>✂ GLOW &amp; CO.</h4>
+    <div class="rs">Luxury Saloon · ${dt}</div>
+    <hr>
+    <div class="rl"><span>Customer:</span><span>${b.custName}</span></div>
+    ${b.custPhone?`<div class="rl"><span>Mobile:</span><span>${b.custPhone}</span></div>`:''}
+    <hr>
+    ${b.services.map(s=>`<div class="rl"><span>${s.name}</span><span>₹${s.price}.00</span></div>`).join('')}
+    <hr>
+    <div class="rl"><span>Subtotal</span><span>₹${b.subtotal.toFixed(2)}</span></div>
+    <div class="rl"><span>Discount ${b.discType==='percent'?'('+b.discVal+'%)':'(₹'+b.discVal+')'}</span><span>-₹${b.discount.toFixed(2)}</span></div>
+    <div class="rl" style="font-weight:bold;font-size:14px;"><span>NET TOTAL</span><span>₹${b.total.toFixed(2)}</span></div>
+    <hr>
+    <div class="rl"><span>Payment Mode</span><span>${b.payMode}</span></div>
+    <hr>
+    <div style="text-align:center;margin-top:8px;">Thank you for visiting! ❤</div>`;
+  openModal('rcptModal');
+}
+function renderToday(){
+  const tbody=document.getElementById('todayBody');
+  const today=new Date().toDateString();
+  const bills=(S('gc_bills')||[])
+    .filter(b=>new Date(b.ts).toDateString()===today&&b.billedBy===CU.id)
+    .reverse();
+  if(!bills.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No transactions today.</td></tr>';return;}
+  tbody.innerHTML=bills.map(b=>`
+    <tr>
+      <td>${new Date(b.ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</td>
+      <td style="font-weight:600;">${b.custName}</td>
+      <td style="font-size:12px;">${b.services.map(s=>s.name).join(', ')}</td>
+      <td>${b.discVal?(b.discType==='percent'?b.discVal+'%':'₹'+b.discVal):'—'}</td>
+      <td style="color:var(--green);font-weight:800;">₹${b.total.toFixed(2)}</td>
+      <td><span class="badge bg">${b.payMode}</span></td>
+    </tr>`).join('');
+}
+
+/* ════════════════════════════════
+   ADMIN DASHBOARD
+════════════════════════════════ */
+function filteredBills(period,uid){
+  let bills=S('gc_bills')||[];
+  const now=new Date();
+  bills=bills.filter(b=>{
+    const d=new Date(b.ts);
+    if(period==='day') return d.toDateString()===now.toDateString();
+    if(period==='week'){const w=new Date(now);w.setDate(now.getDate()-now.getDay());return d>=w;}
+    if(period==='month') return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    if(period==='year') return d.getFullYear()===now.getFullYear();
+    return true;
+  });
+  if(uid&&uid!=='all') bills=bills.filter(b=>b.billedBy===uid);
+  return bills;
+}
+function loadAdminDash(){
+  const period=document.getElementById('adFilter').value;
+  const uid=document.getElementById('adUser').value;
+  const bills=filteredBills(period,uid);
+  const rev=bills.reduce((s,b)=>s+b.total,0);
+  const custs=new Set(bills.map(b=>b.custPhone||b.custName)).size;
+  const svcs=bills.reduce((s,b)=>s+b.services.length,0);
+  document.getElementById('adRev').textContent='₹'+rev.toLocaleString('en-IN');
+  document.getElementById('adBills').textContent=bills.length;
+  document.getElementById('adCusts').textContent=custs;
+  document.getElementById('adSvcs').textContent=svcs;
+  buildPie(bills);buildBar(bills,period);
+  const tbody=document.getElementById('adTxBody');
+  const rec=[...bills].reverse().slice(0,10);
+  if(!rec.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No transactions.</td></tr>';return;}
+  tbody.innerHTML=rec.map(b=>`
+    <tr>
+      <td style="font-size:11px;">${new Date(b.ts).toLocaleString('en-IN')}</td>
+      <td style="font-weight:600;">${b.custName}</td>
+      <td style="font-size:11px;">${b.services.map(s=>s.name).join(', ')}</td>
+      <td><span class="badge bb">${b.billedByName}</span></td>
+      <td style="color:var(--gold);font-weight:800;">₹${b.total.toFixed(2)}</td>
+      <td><span class="badge bg">${b.payMode}</span></td>
+    </tr>`).join('');
+}
+function buildPie(bills){
+  const map={};
+  bills.forEach(b=>b.services.forEach(s=>{map[s.name]=(map[s.name]||0)+s.price;}));
+  const labels=Object.keys(map),data=Object.values(map);
+  const colors=['#c9a84c','#00c97a','#4a9eff','#e05555','#e8c96a','#a07830','#2a8a5a','#1a6acc','#882222'];
+  if(pieInst)pieInst.destroy();
+  const ctx=document.getElementById('pieChart').getContext('2d');
+  pieInst=new Chart(ctx,{
+    type:'doughnut',
+    data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{color:'#5a6a7a',font:{size:10},padding:10}},
+        tooltip:{callbacks:{label:c=>' ₹'+c.parsed.toLocaleString('en-IN')}}}}
+  });
+}
+function buildBar(bills,period){
+  const map={};
+  bills.forEach(b=>{
+    const d=new Date(b.ts);
+    let k;
+    if(period==='day') k=d.getHours()+':00';
+    else if(period==='week') k=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+    else if(period==='month') k=d.getDate()+' '+d.toLocaleString('en-IN',{month:'short'});
+    else k=d.toLocaleString('en-IN',{month:'short'});
+    map[k]=(map[k]||0)+b.total;
+  });
+  if(barInst)barInst.destroy();
+  const ctx=document.getElementById('barChart').getContext('2d');
+  barInst=new Chart(ctx,{
+    type:'bar',
+    data:{labels:Object.keys(map),datasets:[{data:Object.values(map),
+      backgroundColor:'rgba(201,168,76,.55)',borderColor:'#c9a84c',borderWidth:2,borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>'₹'+c.parsed.y.toLocaleString('en-IN')}}},
+      scales:{
+        x:{ticks:{color:'#5a6a7a',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
+        y:{ticks:{color:'#5a6a7a',font:{size:10},callback:v=>'₹'+v},grid:{color:'rgba(255,255,255,.04)'}}
+      }}
+  });
+}
+
+/* ════════════════════════════════
+   ADMIN SALES
+════════════════════════════════ */
+function loadSales(){
+  const period=document.getElementById('salPeriod').value;
+  const uid=document.getElementById('salUser').value;
+  const bills=filteredBills(period,uid);
+  const rev=bills.reduce((s,b)=>s+b.total,0);
+  const disc=bills.reduce((s,b)=>s+b.discount,0);
+  const custs=new Set(bills.map(b=>b.custPhone||b.custName)).size;
+  document.getElementById('salStats').innerHTML=`
+    <div class="sc g"><div class="si">💰</div><div class="sv">₹${rev.toLocaleString('en-IN')}</div><div class="sl">Net Revenue</div></div>
+    <div class="sc gr"><div class="si">🧾</div><div class="sv">${bills.length}</div><div class="sl">Transactions</div></div>
+    <div class="sc bl"><div class="si">👤</div><div class="sv">${custs}</div><div class="sl">Unique Customers</div></div>
+    <div class="sc rd"><div class="si">🏷️</div><div class="sv">₹${disc.toFixed(0)}</div><div class="sl">Total Discounts</div></div>`;
+  const tbody=document.getElementById('salBody');
+  if(!bills.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No sales for selected filter.</td></tr>';return;}
+  tbody.innerHTML=[...bills].reverse().map(b=>`
+    <tr>
+      <td style="font-size:11px;">${new Date(b.ts).toLocaleString('en-IN')}</td>
+      <td style="font-weight:600;">${b.custName}</td>
+      <td>${b.custPhone||'—'}</td>
+      <td style="font-size:11px;">${b.services.map(s=>s.name).join(', ')}</td>
+      <td>${b.discVal?(b.discType==='percent'?b.discVal+'%':'₹'+b.discVal):'—'}</td>
+      <td style="color:var(--gold);font-weight:800;">₹${b.total.toFixed(2)}</td>
+      <td><span class="badge bg">${b.payMode}</span></td>
+      <td><span class="badge bb">${b.billedByName}</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editInvoice('${b.id}')">✏️ Edit</button>
+        <button class="btn btn-red btn-sm" onclick="deleteInvoice('${b.id}')">🗑 Del</button>
+      </td>
+    </tr>`).join('');
+}
+function dlSales(){
+  const period=document.getElementById('salPeriod').value;
+  const uid=document.getElementById('salUser').value;
+  const bills=filteredBills(period,uid);
+  let csv='Date/Time,Customer,Phone,Services,Discount,Total,Payment,Terminal\n';
+  bills.forEach(b=>{
+    csv+=`"${new Date(b.ts).toLocaleString('en-IN')}","${b.custName}","${b.custPhone||''}","${b.services.map(s=>s.name).join('|')}","${b.discVal?(b.discType==='percent'?b.discVal+'%':'₹'+b.discVal):''}","${b.total.toFixed(2)}","${b.payMode}","${b.billedByName}"\n`;
+  });
+  dlCSV(csv,`sales_${period}_${Date.now()}.csv`);
+}
+
+/* ════════════════════════════════
+   ADMIN CUSTOMERS
+════════════════════════════════ */
+function loadCustomers(){
+  const q=(document.getElementById('custSrch')?.value||'').toLowerCase();
+  const bills=S('gc_bills')||[];
+  const map={};
+  bills.forEach(b=>{
+    const key=b.custPhone||b.custName;
+    if(!map[key]) map[key]={name:b.custName,phone:b.custPhone||'—',visits:[],total:0};
+    map[key].visits.push(b);map[key].total+=b.total;
+  });
+  const custs=Object.values(map)
+    .filter(c=>c.name.toLowerCase().includes(q)||c.phone.includes(q))
+    .sort((a,b)=>b.total-a.total);
+  const tbody=document.getElementById('custBody');
+  if(!custs.length){tbody.innerHTML='<tr><td colspan="7" class="empty">No customers found.</td></tr>';return;}
+  tbody.innerHTML=custs.map((c,i)=>{
+    const last=c.visits[c.visits.length-1];
+    return `<tr>
+      <td>${i+1}</td>
+      <td style="font-weight:700;">${c.name}</td>
+      <td>${c.phone}</td>
+      <td><span class="badge bo">${c.visits.length}</span></td>
+      <td style="color:var(--gold);font-weight:800;">₹${c.total.toFixed(2)}</td>
+      <td style="font-size:11px;">${new Date(last.ts).toLocaleString('en-IN')}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="viewHist('${encodeURIComponent(c.name)}','${c.phone}')">📋 View</button></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editCustomer('${encodeURIComponent(c.name)}','${c.phone}')">✏️ Edit</button>
+        <button class="btn btn-red btn-sm" onclick="deleteCustomer('${encodeURIComponent(c.name)}','${c.phone}')">🗑 Del</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function viewHist(nameEnc,phone){
+  const name=decodeURIComponent(nameEnc);
+  const bills=(S('gc_bills')||[]).filter(b=>b.custName===name||b.custPhone===phone);
+  document.getElementById('histTitle').textContent=`📋 ${name} — Purchase History`;
+  document.getElementById('histBody').innerHTML=bills.reverse().map(b=>`
+    <tr>
+      <td style="font-size:11px;">${new Date(b.ts).toLocaleString('en-IN')}</td>
+      <td style="font-size:12px;">${b.services.map(s=>s.name).join(', ')}</td>
+      <td>${b.discVal?(b.discType==='percent'?b.discVal+'%':'₹'+b.discVal):'—'}</td>
+      <td style="color:var(--gold);font-weight:800;">₹${b.total.toFixed(2)}</td>
+      <td><span class="badge bg">${b.payMode}</span></td>
+    </tr>`).join('');
+  openModal('histModal');
+}
+function dlCustomers(){
+  const bills=S('gc_bills')||[];
+  const map={};
+  bills.forEach(b=>{
+    const key=b.custPhone||b.custName;
+    if(!map[key]) map[key]={name:b.custName,phone:b.custPhone||'',visits:[],total:0};
+    map[key].visits.push(b);map[key].total+=b.total;
+  });
+  let csv='Customer Name,Phone,Visits,Total Spent,Last Visit\n';
+  Object.values(map).forEach(c=>{
+    const last=c.visits[c.visits.length-1];
+    csv+=`"${c.name}","${c.phone}","${c.visits.length}","${c.total.toFixed(2)}","${new Date(last.ts).toLocaleString('en-IN')}"\n`;
+  });
+  dlCSV(csv,`customers_${Date.now()}.csv`);
+}
+
+/* ════════════════════════════════
+   UTILITIES
+════════════════════════════════ */
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mo').forEach(o=>{
+  o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+});
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+function dlCSV(csv,fname){
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=fname;a.click();
+}
+
+// Init discount type listener
+document.getElementById('discType').addEventListener('change',calcBill);
+
+/* ════════════════════════════════
+   EXPENSES — BILLING USER
+════════════════════════════════ */
+function saveExpense(){
+  const desc=document.getElementById('expDesc').value.trim();
+  const amt=parseFloat(document.getElementById('expAmt').value);
+  if(!desc||isNaN(amt)||amt<=0){toast('Description & valid amount required','err');return;}
+  const cat=document.getElementById('expCat').value;
+  const mode=document.getElementById('expMode').value;
+  const note=document.getElementById('expNote').value.trim();
+  const exp={
+    id:'exp_'+Date.now(),
+    ts:new Date().toISOString(),
+    desc,cat,amt,mode,note,
+    recordedBy:CU.id,
+    recordedByName:CU.name,
+  };
+  const exps=S('gc_expenses')||[];
+  exps.push(exp);
+  SS('gc_expenses',exps);
+  document.getElementById('expDesc').value='';
+  document.getElementById('expAmt').value='';
+  document.getElementById('expNote').value='';
+  toast('Expense saved ✅','ok');
+  renderMyExpenses();
+}
+function renderMyExpenses(){
+  const today=new Date().toDateString();
+  const exps=(S('gc_expenses')||[])
+    .filter(e=>new Date(e.ts).toDateString()===today&&e.recordedBy===CU.id)
+    .reverse();
+  const tbody=document.getElementById('myExpBody');
+  if(!exps.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No expenses recorded today.</td></tr>';return;}
+  tbody.innerHTML=exps.map(e=>`
+    <tr>
+      <td style="font-size:11px;">${new Date(e.ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</td>
+      <td style="font-weight:600;">${e.desc}</td>
+      <td><span class="badge bo">${e.cat}</span></td>
+      <td><span class="badge bg">${e.mode}</span></td>
+      <td style="color:#ff8080;font-weight:800;">₹${e.amt.toFixed(2)}</td>
+      <td style="font-size:11px;color:var(--muted);">${e.note||'—'}</td>
+    </tr>`).join('');
+}
+
+/* ════════════════════════════════
+   EXPENSES — ADMIN
+════════════════════════════════ */
+function filteredExpenses(period,uid,cat){
+  let exps=S('gc_expenses')||[];
+  const now=new Date();
+  exps=exps.filter(e=>{
+    const d=new Date(e.ts);
+    if(period==='day') return d.toDateString()===now.toDateString();
+    if(period==='week'){const w=new Date(now);w.setDate(now.getDate()-now.getDay());return d>=w;}
+    if(period==='month') return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    if(period==='year') return d.getFullYear()===now.getFullYear();
+    return true;
+  });
+  if(uid&&uid!=='all') exps=exps.filter(e=>e.recordedBy===uid);
+  if(cat&&cat!=='all') exps=exps.filter(e=>e.cat===cat);
+  return exps;
+}
+function loadAdminExpenses(){
+  const period=document.getElementById('expPeriod').value;
+  const uid=document.getElementById('expUser').value;
+  const cat=document.getElementById('expCatFilter').value;
+  const exps=filteredExpenses(period,uid,cat);
+  const total=exps.reduce((s,e)=>s+e.amt,0);
+  const catMap={};
+  exps.forEach(e=>catMap[e.cat]=(catMap[e.cat]||0)+e.amt);
+  const topCat=Object.entries(catMap).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('expStats').innerHTML=`
+    <div class="sc rd"><div class="si">💸</div><div class="sv">₹${total.toLocaleString('en-IN')}</div><div class="sl">Total Expenses</div></div>
+    <div class="sc gr"><div class="si">📋</div><div class="sv">${exps.length}</div><div class="sl">Entries</div></div>
+    <div class="sc bl"><div class="si">📂</div><div class="sv" style="font-size:14px;">${topCat?topCat[0]:'—'}</div><div class="sl">Top Category</div></div>
+    <div class="sc g"><div class="si">💰</div><div class="sv">₹${topCat?topCat[1].toLocaleString('en-IN'):'0'}</div><div class="sl">Top Cat Amount</div></div>`;
+  const tbody=document.getElementById('adminExpBody');
+  if(!exps.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No expenses for selected filter.</td></tr>';return;}
+  tbody.innerHTML=[...exps].reverse().map(e=>`
+    <tr>
+      <td style="font-size:11px;">${new Date(e.ts).toLocaleString('en-IN')}</td>
+      <td style="font-weight:600;">${e.desc}</td>
+      <td><span class="badge bo">${e.cat}</span></td>
+      <td><span class="badge bg">${e.mode}</span></td>
+      <td style="color:#ff8080;font-weight:800;">₹${e.amt.toFixed(2)}</td>
+      <td style="font-size:11px;color:var(--muted);">${e.note||'—'}</td>
+      <td><span class="badge bb">${e.recordedByName}</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editExpense('${e.id}')">✏️</button>
+        <button class="btn btn-red btn-sm" onclick="deleteExpense('${e.id}')">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+function editExpense(id){
+  const exps=S('gc_expenses')||[];
+  const e=exps.find(x=>x.id===id);
+  if(!e)return;
+  const newDesc=prompt('Edit Description:',e.desc);
+  if(newDesc===null)return;
+  const newAmt=parseFloat(prompt('Edit Amount (₹):',e.amt));
+  if(isNaN(newAmt)||newAmt<=0){toast('Invalid amount','err');return;}
+  const updated=exps.map(x=>x.id===id?{...x,desc:newDesc.trim(),amt:newAmt}:x);
+  SS('gc_expenses',updated);
+  toast('Expense updated ✅','ok');
+  loadAdminExpenses();
+}
+function deleteExpense(id){
+  if(!confirm('Delete this expense entry?'))return;
+  SS('gc_expenses',(S('gc_expenses')||[]).filter(e=>e.id!==id));
+  toast('Expense deleted','ok');
+  loadAdminExpenses();
+}
+function dlExpenses(){
+  const period=document.getElementById('expPeriod').value;
+  const uid=document.getElementById('expUser').value;
+  const cat=document.getElementById('expCatFilter').value;
+  const exps=filteredExpenses(period,uid,cat);
+  let csv='Date/Time,Description,Category,Mode,Amount,Note,Recorded By\n';
+  exps.forEach(e=>{
+    csv+=`"${new Date(e.ts).toLocaleString('en-IN')}","${e.desc}","${e.cat}","${e.mode}","${e.amt.toFixed(2)}","${e.note||''}","${e.recordedByName}"\n`;
+  });
+  dlCSV(csv,`expenses_${period}_${Date.now()}.csv`);
+}
+
+/* ════════════════════════════════
+   PAYMENT MODE REPORT — ADMIN
+════════════════════════════════ */
+function loadPaymentReport(){
+  const period=document.getElementById('pmPeriod').value;
+  const uid=document.getElementById('pmUser').value;
+  const bills=filteredBills(period,uid);
+  const modes=['Cash','UPI','Card','Net Banking'];
+  const modeMap={};
+  modes.forEach(m=>modeMap[m]={count:0,total:0});
+  bills.forEach(b=>{
+    const m=b.payMode;
+    if(!modeMap[m])modeMap[m]={count:0,total:0};
+    modeMap[m].count++;
+    modeMap[m].total+=b.total;
+  });
+  const grandTotal=bills.reduce((s,b)=>s+b.total,0);
+  const colors={Cash:'var(--gold)',UPI:'var(--green)',Card:'var(--blue)','Net Banking':'#a07830'};
+  const topMode=Object.entries(modeMap).sort((a,b)=>b[1].total-a[1].total)[0];
+  document.getElementById('pmStats').innerHTML=`
+    <div class="sc g"><div class="si">💰</div><div class="sv">₹${grandTotal.toLocaleString('en-IN')}</div><div class="sl">Grand Total</div></div>
+    <div class="sc gr"><div class="si">🧾</div><div class="sv">${bills.length}</div><div class="sl">Transactions</div></div>
+    <div class="sc bl"><div class="si">🏆</div><div class="sv" style="font-size:14px;">${topMode?topMode[0]:'—'}</div><div class="sl">Top Mode</div></div>
+    <div class="sc rd"><div class="si">💳</div><div class="sv">${Object.keys(modeMap).filter(m=>modeMap[m].count>0).length}</div><div class="sl">Active Modes</div></div>`;
+  document.getElementById('pmCards').innerHTML=Object.entries(modeMap)
+    .filter(([,v])=>v.count>0)
+    .sort((a,b)=>b[1].total-a[1].total)
+    .map(([mode,v])=>{
+      const pct=grandTotal>0?((v.total/grandTotal)*100).toFixed(1):0;
+      return `<div class="card" style="margin-bottom:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div style="font-size:15px;font-weight:800;color:${colors[mode]||'var(--gold)'};">💳 ${mode}</div>
+          <span class="badge bo">${pct}% of revenue</span>
+        </div>
+        <div style="display:flex;gap:24px;">
+          <div><div style="font-size:22px;font-weight:800;color:${colors[mode]||'var(--gold)'};">₹${v.total.toLocaleString('en-IN')}</div><div style="font-size:11px;color:var(--muted);">Total Revenue</div></div>
+          <div><div style="font-size:22px;font-weight:800;color:var(--text);">${v.count}</div><div style="font-size:11px;color:var(--muted);">Transactions</div></div>
+          <div><div style="font-size:22px;font-weight:800;color:var(--text);">₹${v.count>0?(v.total/v.count).toFixed(0):0}</div><div style="font-size:11px;color:var(--muted);">Avg per Bill</div></div>
+        </div>
+        <div style="background:var(--border);border-radius:4px;height:6px;margin-top:12px;overflow:hidden;">
+          <div style="background:${colors[mode]||'var(--gold)'};height:100%;width:${pct}%;border-radius:4px;transition:width .4s;"></div>
+        </div>
+      </div>`;
+    }).join('');
+  const tbody=document.getElementById('pmBody');
+  if(!bills.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No transactions for selected filter.</td></tr>';return;}
+  tbody.innerHTML=[...bills].reverse().map(b=>`
+    <tr>
+      <td style="font-size:11px;">${new Date(b.ts).toLocaleString('en-IN')}</td>
+      <td style="font-weight:600;">${b.custName}</td>
+      <td style="font-size:11px;">${b.services.map(s=>s.name).join(', ')}</td>
+      <td style="color:var(--gold);font-weight:800;">₹${b.total.toFixed(2)}</td>
+      <td><span class="badge bg">${b.payMode}</span></td>
+      <td><span class="badge bb">${b.billedByName}</span></td>
+    </tr>`).join('');
+}
+function dlPaymentReport(){
+  const period=document.getElementById('pmPeriod').value;
+  const uid=document.getElementById('pmUser').value;
+  const bills=filteredBills(period,uid);
+  const modeMap={};
+  bills.forEach(b=>{
+    if(!modeMap[b.payMode])modeMap[b.payMode]={count:0,total:0};
+    modeMap[b.payMode].count++;modeMap[b.payMode].total+=b.total;
+  });
+  let csv='Payment Mode,Transactions,Total Revenue,Average per Bill\n';
+  Object.entries(modeMap).forEach(([m,v])=>{
+    csv+=`"${m}","${v.count}","${v.total.toFixed(2)}","${(v.total/v.count).toFixed(2)}"\n`;
+  });
+  csv+='\nDate/Time,Customer,Services,Total,Payment Mode,Terminal\n';
+  bills.forEach(b=>{
+    csv+=`"${new Date(b.ts).toLocaleString('en-IN')}","${b.custName}","${b.services.map(s=>s.name).join('|')}","${b.total.toFixed(2)}","${b.payMode}","${b.billedByName}"\n`;
+  });
+  dlCSV(csv,`payment_modes_${period}_${Date.now()}.csv`);
+}
+
+/* ════════════════════════════════
+   CUSTOMER DB — EDIT & DELETE
+════════════════════════════════ */
+function editCustomer(oldName,oldPhone){
+  const newName=prompt('Edit Customer Name:',decodeURIComponent(oldName));
+  if(newName===null)return;
+  const newPhone=prompt('Edit Phone Number:',oldPhone==='—'?'':oldPhone);
+  if(newPhone===null)return;
+  const bills=S('gc_bills')||[];
+  const updated=bills.map(b=>{
+    if(b.custName===decodeURIComponent(oldName)&&(b.custPhone===oldPhone||(!b.custPhone&&oldPhone==='—'))){
+      return {...b,custName:newName.trim(),custPhone:newPhone.trim()||b.custPhone};
+    }
+    return b;
+  });
+  SS('gc_bills',updated);
+  toast('Customer updated ✅','ok');
+  loadCustomers();
+}
+function deleteCustomer(nameEnc,phone){
+  const name=decodeURIComponent(nameEnc);
+  if(!confirm(`Delete ALL records for "${name}"? This cannot be undone.`))return;
+  const bills=(S('gc_bills')||[]).filter(b=>!(b.custName===name&&(b.custPhone===phone||(!b.custPhone&&phone==='—'))));
+  SS('gc_bills',bills);
+  toast('Customer deleted','ok');
+  loadCustomers();
+}
+
+/* ════════════════════════════════
+   INVOICE — EDIT & DELETE
+════════════════════════════════ */
+function editInvoice(id){
+  const bills=S('gc_bills')||[];
+  const b=bills.find(x=>x.id===id);
+  if(!b)return;
+  const newName=prompt('Edit Customer Name:',b.custName);
+  if(newName===null)return;
+  const newTotal=parseFloat(prompt('Edit Total Amount (₹):',b.total.toFixed(2)));
+  if(isNaN(newTotal)||newTotal<0){toast('Invalid amount','err');return;}
+  const newMode=prompt('Edit Payment Mode (Cash/UPI/Card/Net Banking):',b.payMode);
+  if(!newMode)return;
+  const updated=bills.map(x=>x.id===id?{...x,custName:newName.trim(),total:newTotal,payMode:newMode.trim()}:x);
+  SS('gc_bills',updated);
+  toast('Invoice updated ✅','ok');
+  loadSales();
+}
+function deleteInvoice(id){
+  if(!confirm('Delete this invoice? This cannot be undone.'))return;
+  SS('gc_bills',(S('gc_bills')||[]).filter(b=>b.id!==id));
+  toast('Invoice deleted','ok');
+  loadSales();
+}
+</script>
+</body>
+</html>

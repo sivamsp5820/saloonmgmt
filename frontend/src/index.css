@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #0d1117;
+    --sidebar: #111820;
+    --card: #161e28;
+    --card2: #1c2532;
+    --gold: #c9a84c;
+    --gold2: #e8c96a;
+    --green: #00c97a;
+    --red: #e05555;
+    --blue: #4a9eff;
+    --text: #e8edf2;
+    --muted: #5a6a7a;
+    --border: #1e2d3d;
+  }
+
+  body {
+    @apply bg-[#0d1117] text-[#e8edf2] font-sans antialiased h-screen overflow-hidden;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 168, 76, 0.25);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 168, 76, 0.45);
+}
+
+/* Receipt Print Styling */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-receipt, #print-receipt * {
+    visibility: visible;
+  }
+  #print-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 80mm;
+    padding: 10px;
+    background: white !important;
+    color: black !important;
+  }
+}
