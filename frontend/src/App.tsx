@@ -12,6 +12,7 @@ import { AdminCustomers } from './pages/AdminCustomers';
 import { AdminExpenses } from './pages/AdminExpenses';
 import { AdminPayments } from './pages/AdminPayments';
 import { AdminServices } from './pages/AdminServices';
+import { AdminStaff } from './pages/AdminStaff';
 
 import { BillingTerminal } from './pages/BillingTerminal';
 import { BillingExpenses } from './pages/BillingExpenses';
@@ -34,6 +35,7 @@ const App: React.FC = () => {
               <Route path="/admin/expenses" element={<AdminExpenses />} />
               <Route path="/admin/payments" element={<AdminPayments />} />
               <Route path="/admin/services" element={<AdminServices />} />
+              <Route path="/admin/staff" element={<AdminStaff />} />
             </Route>
           </Route>
 

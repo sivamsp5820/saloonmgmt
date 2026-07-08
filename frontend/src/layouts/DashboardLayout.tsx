@@ -13,7 +13,8 @@ import {
   Scissors, 
   LogOut, 
   User as UserIcon,
-  Calendar
+  Calendar,
+  Trash2
 } from 'lucide-react';
 
 interface NavItem {
@@ -33,10 +34,50 @@ export const DashboardLayout: React.FC = () => {
   });
 
   const [toastMsg, setToastMsg] = useState<{ text: string; type: 'ok' | 'err' } | null>(null);
+  const [showResetModal, setShowResetModal] = useState<boolean>(false);
+  const [resetConfirmText, setResetConfirmText] = useState<string>('');
+  const [isResetting, setIsResetting] = useState<boolean>(false);
 
   const showToast = (text: string, type: 'ok' | 'err' = 'ok') => {
     setToastMsg({ text, type });
     setTimeout(() => setToastMsg(null), 3500);
+  };
+
+  // Keyboard shortcut listener (Ctrl+Alt+R) to open database reset modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (user?.role === 'admin' && e.ctrlKey && e.altKey && e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        setShowResetModal(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [user]);
+
+  const handleResetDatabase = async () => {
+    if (resetConfirmText !== 'RESET') return;
+    setIsResetting(true);
+    try {
+      const res = await apiClient.post('/system/reset');
+      if (res.data.status === 'success') {
+        showToast(res.data.message || 'Database reset successfully. Only admin is kept.', 'ok');
+        setShowResetModal(false);
+        setResetConfirmText('');
+        // Reload page to refresh all active subpages (which now have empty table values)
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        showToast(res.data.message || 'Failed to reset tables.', 'err');
+      }
+    } catch (err: any) {
+      console.error('Failed to reset database', err);
+      const errMsg = err.response?.data?.message || 'Error occurred during database reset.';
+      showToast(errMsg, 'err');
+    } finally {
+      setIsResetting(false);
+    }
   };
 
   const triggerDailyReport = async () => {
@@ -91,6 +132,7 @@ export const DashboardLayout: React.FC = () => {
     { path: '/admin/expenses', label: 'Expenses Report', icon: <IndianRupee size={18} /> },
     { path: '/admin/payments', label: 'Payment Modes', icon: <CreditCard size={18} /> },
     { path: '/admin/services', label: 'Services', icon: <Settings size={18} /> },
+    { path: '/admin/staff', label: 'Staff Management', icon: <UserIcon size={18} /> },
   ];
 
   const cashierNav: NavItem[] = [
@@ -147,6 +189,15 @@ export const DashboardLayout: React.FC = () => {
         </nav>
 
         <div className="p-4 border-t border-[#1e2d3d]">
+          {user?.role === 'admin' && (
+            <button 
+              onClick={() => setShowResetModal(true)}
+              className="w-full mb-3 py-2.5 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-500/20 hover:text-red-300 transition-all duration-200"
+            >
+              <Trash2 size={14} className="animate-pulse" />
+              <span>Reset Database Tables</span>
+            </button>
+          )}
           <div className="flex items-center gap-3 bg-white/5 rounded-lg p-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#c9a84c] to-[#a07830] flex items-center justify-center font-extrabold text-sm text-[#0d1117] uppercase flex-shrink-0">
               {user?.name[0] || 'U'}
@@ -215,6 +266,74 @@ export const DashboardLayout: React.FC = () => {
         </div>
       )}
 
+      {/* ── RESET DATABASE MODAL ── */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/65 backdrop-blur-sm animate-fade-in">
+          <div className="w-[450px] bg-[#161e28] border border-red-500/30 rounded-2xl p-6 shadow-2xl transform scale-100 transition-all duration-300 animate-scale-in">
+            <div className="flex items-center gap-3 border-b border-[#1e2d3d] pb-4 mb-4">
+              <div className="p-2.5 bg-red-500/10 rounded-xl text-red-500">
+                <Trash2 size={22} className="animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-[#e8edf2]">Reset Database Tables</h3>
+                <p className="text-[11px] text-[#5a6a7a]">System Administrator Privilege (Ctrl+Alt+R)</p>
+              </div>
+            </div>
+
+            <div className="space-y-3.5 mb-6 text-sm text-[#e8edf2]/80 leading-relaxed">
+              <p>
+                This action will <strong className="text-red-400">permanently delete</strong> all records from the following tables:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-xs text-[#5a6a7a] bg-[#0d1117] p-3 rounded-lg border border-[#1e2d3d]">
+                <li><strong className="text-[#e8edf2]">Customers</strong> (All registered clients)</li>
+                <li><strong className="text-[#e8edf2]">Services</strong> (All services catalog items)</li>
+                <li><strong className="text-[#e8edf2]">Transactions</strong> (All sales, billing, and checkout history)</li>
+                <li><strong className="text-[#e8edf2]">Expenses</strong> (All logged operational costs)</li>
+                <li><strong className="text-[#e8edf2]">Billing Logins</strong> (All cashier profiles, keeping only <span className="text-[#c9a84c]">admin</span>)</li>
+              </ul>
+              <p className="text-xs text-[#5a6a7a]">
+                To confirm this operation, please type <span className="text-red-400 font-mono font-bold bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/25">RESET</span> below.
+              </p>
+              <input
+                type="text"
+                placeholder="Type RESET to confirm"
+                value={resetConfirmText}
+                onChange={(e) => setResetConfirmText(e.target.value)}
+                className="w-full bg-[#0d1117] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs font-mono text-[#e8edf2] focus:border-red-500 outline-none transition-all duration-200"
+              />
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowResetModal(false);
+                  setResetConfirmText('');
+                }}
+                className="px-4 py-2 border border-[#1e2d3d] hover:bg-white/5 rounded-lg text-xs font-bold text-[#5a6a7a] hover:text-[#e8edf2] transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={resetConfirmText !== 'RESET' || isResetting}
+                onClick={handleResetDatabase}
+                className="px-5 py-2 bg-red-500/10 hover:bg-red-500 border border-red-500/35 hover:border-red-600 rounded-lg text-red-500 hover:text-white text-xs font-bold transition-all duration-200 disabled:opacity-40 disabled:hover:bg-red-500/10 disabled:hover:text-red-500 disabled:hover:border-red-500/35 disabled:cursor-not-allowed flex items-center gap-1.5"
+              >
+                {isResetting ? (
+                  <>
+                    <div className="w-3 h-3 border-2 border-current border-t-transparent animate-spin rounded-full" />
+                    <span>Resetting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={13} />
+                    <span>Reset System Data</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
