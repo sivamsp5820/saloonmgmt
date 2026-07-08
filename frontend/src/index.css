@@ -46,10 +46,15 @@
   body * {
     visibility: hidden;
   }
+  .no-print, .no-print * {
+    display: none !important;
+    visibility: hidden !important;
+  }
   #print-receipt, #print-receipt * {
     visibility: visible;
   }
   #print-receipt {
+    display: block !important;
     position: absolute;
     left: 0;
     top: 0;
@@ -58,6 +63,8 @@
     padding: 10px;
     background: white !important;
     color: black !important;
+    box-shadow: none !important;
+    border: none !important;
   }
 }
 

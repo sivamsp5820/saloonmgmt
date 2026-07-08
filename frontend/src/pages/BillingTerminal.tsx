@@ -366,44 +366,76 @@ export const BillingTerminal: React.FC = () => {
 
       </div>
 
-      {/* ── PRINT COMPONENT (HIDDEN ON SCREEN VIA CSS) ── */}
+      {/* ── PRINT COMPONENT & PREVIEW MODAL ── */}
       {receipt && (
-        <div id="print-receipt" className="hidden font-mono text-[10px] leading-tight text-black p-4 max-w-[80mm] bg-white">
-          <div className="text-center border-b border-dashed border-black pb-2 mb-2">
-            <h3 className="font-bold text-sm uppercase">Creo Corp Saloon</h3>
-            <p>123 Luxury Avenue, Bangalore</p>
-            <p>Tel: +91 98765 43210</p>
-          </div>
-          
-          <div className="border-b border-dashed border-black pb-2 mb-2 text-[8px]">
-            <p>Bill ID: {receipt.id}</p>
-            <p>Date: {new Date(receipt.ts).toLocaleString('en-IN')}</p>
-            <p>Cashier: {receipt.billedByName}</p>
-            <p>Customer: {receipt.custName} ({receipt.custPhone || 'N/A'})</p>
-          </div>
-
-          <div className="border-b border-dashed border-black pb-2 mb-2">
-            <div className="grid grid-cols-12 font-bold mb-1">
-              <span className="col-span-8">Treatment</span>
-              <span className="col-span-4 text-right">Price</span>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[150] flex items-center justify-center p-4 overflow-y-auto no-print">
+          <div className="bg-[#1c2532] border border-[#c9a84c]/25 rounded-2xl p-6 w-[360px] max-w-full shadow-2xl flex flex-col items-center gap-4 animate-scale-in">
+            <div className="text-center w-full">
+              <h3 className="text-sm font-bold text-[#c9a84c] uppercase tracking-wider mb-1">Receipt Preview</h3>
+              <p className="text-[10px] text-[#5a6a7a]">Verify the 3-inch thermal receipt details below</p>
             </div>
-            {receipt.services.map((s: any, idx: number) => (
-              <div key={idx} className="grid grid-cols-12 text-[9px] mb-0.5">
-                <span className="col-span-8 truncate">{s.name}</span>
-                <span className="col-span-4 text-right">₹{s.price.toFixed(2)}</span>
+            
+            {/* The actual 3-inch physical receipt container */}
+            <div 
+              id="print-receipt" 
+              className="font-mono text-[10px] leading-tight text-black p-5 w-[80mm] max-w-full bg-white shadow-[0_10px_30px_rgba(0,0,0,0.15)] rounded-sm border border-gray-200"
+              style={{ minHeight: '300px' }}
+            >
+              <div className="text-center border-b border-dashed border-black pb-2 mb-2">
+                <h3 className="font-bold text-sm uppercase">Creo Corp Saloon</h3>
+                <p className="text-[9px]">123 Luxury Avenue, Bangalore</p>
+                <p className="text-[9px]">Tel: +91 98765 43210</p>
               </div>
-            ))}
-          </div>
+              
+              <div className="border-b border-dashed border-black pb-2 mb-2 text-[8px]">
+                <p>Bill ID: {receipt.id}</p>
+                <p>Date: {new Date(receipt.ts).toLocaleString('en-IN')}</p>
+                <p>Cashier: {receipt.billedByName}</p>
+                <p>Customer: {receipt.custName} {receipt.custPhone ? `(${receipt.custPhone})` : ''}</p>
+              </div>
 
-          <div className="flex flex-col gap-0.5 text-right font-bold text-[9px] border-b border-dashed border-black pb-2 mb-2">
-            <p>Subtotal: ₹{receipt.subtotal.toFixed(2)}</p>
-            {receipt.discount > 0 && <p>Discount: -₹{receipt.discount.toFixed(2)}</p>}
-            <p className="text-sm">Total: ₹{receipt.total.toFixed(2)}</p>
-          </div>
+              <div className="border-b border-dashed border-black pb-2 mb-2">
+                <div className="grid grid-cols-12 font-bold mb-1 text-[9px]">
+                  <span className="col-span-8">Treatment</span>
+                  <span className="col-span-4 text-right">Price</span>
+                </div>
+                {receipt.services.map((s: any, idx: number) => (
+                  <div key={idx} className="grid grid-cols-12 text-[9px] mb-0.5">
+                    <span className="col-span-8 truncate">{s.name}</span>
+                    <span className="col-span-4 text-right">₹{s.price.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
 
-          <div className="text-center pt-2">
-            <p className="font-bold uppercase tracking-widest text-[9px]">Mode: {receipt.paymentMode}</p>
-            <p className="mt-2 text-[8px] italic">Thank you for visiting Creo Corp!</p>
+              <div className="flex flex-col gap-0.5 text-right font-bold text-[9px] border-b border-dashed border-black pb-2 mb-2">
+                <p>Subtotal: ₹{receipt.subtotal.toFixed(2)}</p>
+                {receipt.discount > 0 && <p>Discount: -₹{receipt.discount.toFixed(2)}</p>}
+                <p className="text-sm text-black">Total: ₹{receipt.total.toFixed(2)}</p>
+              </div>
+
+              <div className="text-center pt-2">
+                <p className="font-bold uppercase tracking-widest text-[9px]">Mode: {receipt.paymentMode}</p>
+                <p className="mt-2 text-[8px] italic">Thank you for visiting Creo Corp!</p>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex gap-3 w-full mt-2">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="flex-1 py-2.5 bg-[#00c97a] hover:bg-[#00c97a]/90 text-[#0d1117] font-black rounded-lg text-xs tracking-wide transition-all shadow-lg shadow-[#00c97a]/20 flex items-center justify-center gap-1.5"
+              >
+                🖨️ Reprint
+              </button>
+              <button
+                type="button"
+                onClick={handleClearCart}
+                className="flex-1 py-2.5 bg-gradient-to-r from-[#c9a84c] to-[#a07830] text-[#0d1117] font-black rounded-lg text-xs tracking-wide transition-all shadow-lg shadow-[#c9a84c]/20"
+              >
+                Close & New Bill
+              </button>
+            </div>
           </div>
         </div>
       )}
