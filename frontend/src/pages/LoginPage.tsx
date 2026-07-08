@@ -45,7 +45,7 @@ export const LoginPage: React.FC = () => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_25%_40%,rgba(201,168,76,0.08)_0%,transparent_55%),radial-gradient(ellipse_at_75%_60%,rgba(0,201,122,0.05)_0%,transparent_50%)] pointer-events-none" />
 
       <div className="relative z-10 w-[420px] bg-[#161e28]/95 border border-[#c9a84c]/25 rounded-2xl p-12 shadow-[0_32px_80px_rgba(0,0,0,0.7)]">
-        
+
         {/* Logo and Branding */}
         <div className="text-center mb-9">
           <span className="text-5xl block mb-3 animate-bounce">✂️</span>
@@ -101,11 +101,11 @@ export const LoginPage: React.FC = () => {
         {/* Demo login instructions */}
         <div className="text-[10px] text-[#5a6a7a] text-center mt-7 leading-relaxed border-t border-[#1e2d3d] pt-5">
           <p className="mb-2">Demo Cashiers and Admin profiles:</p>
-          <div className="flex flex-col gap-1">
+          {/* <div className="flex flex-col gap-1">
             <p>Admin: <span className="text-[#c9a84c]">admin / admin123</span></p>
             <p>Cashier 1: <span className="text-[#c9a84c]">billing1 / bill123</span></p>
             <p>Cashier 2: <span className="text-[#c9a84c]">billing2 / bill456</span></p>
-          </div>
+          </div> */}
         </div>
 
       </div>
