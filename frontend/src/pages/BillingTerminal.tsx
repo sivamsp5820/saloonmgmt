@@ -49,6 +49,17 @@ export const BillingTerminal: React.FC = () => {
     fetchServices();
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.altKey && e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        handleClearCart();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleAddService = (svc: Service) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === svc.id);
@@ -242,9 +253,9 @@ export const BillingTerminal: React.FC = () => {
         <div>
           <div className="border-b border-[#1e2d3d] pb-3 mb-3 flex justify-between items-center">
             <span className="text-xs font-bold text-[#c9a84c] uppercase tracking-wider">Checkout Cart</span>
-            {cart.length > 0 && (
-              <button onClick={handleClearCart} className="text-[10px] text-red-400 hover:underline font-bold">
-                Clear Cart
+            {(cart.length > 0 || custName || custPhone) && (
+              <button onClick={handleClearCart} className="text-[10px] text-red-400 hover:underline font-bold" title="Shortcut: Alt+R">
+                Reset Details (Alt+R)
               </button>
             )}
           </div>
