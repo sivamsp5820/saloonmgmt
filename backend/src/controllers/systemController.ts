@@ -13,6 +13,20 @@ export const resetDatabase = async (req: Request, res: Response) => {
     await client.query('DELETE FROM expenses');
     await client.query('DELETE FROM customers');
     await client.query('DELETE FROM services');
+    await client.query('DELETE FROM service_categories');
+    
+    // Reseed default categories
+    await client.query(`
+      INSERT INTO service_categories (id, name) VALUES
+      ('b1000000-0000-0000-0000-000000000001', 'Hair'),
+      ('b1000000-0000-0000-0000-000000000002', 'Skin'),
+      ('b1000000-0000-0000-0000-000000000003', 'Beard'),
+      ('b1000000-0000-0000-0000-000000000004', 'Nails'),
+      ('b1000000-0000-0000-0000-000000000005', 'Spa'),
+      ('b1000000-0000-0000-0000-000000000006', 'Uncategorized')
+      ON CONFLICT (name) DO NOTHING
+    `);
+
     await client.query('DELETE FROM profiles WHERE role != $1', ['admin']);
     
     await client.query('COMMIT');

@@ -26,7 +26,7 @@ export const BillingTerminal: React.FC = () => {
   const [discVal, setDiscVal] = useState<number>(0);
 
   // Payment Mode
-  const [paymentMode, setPaymentMode] = useState<'Cash' | 'UPI' | 'Card' | 'Net Banking'>('Cash');
+  const [paymentMode, setPaymentMode] = useState<'Cash' | 'UPI' | 'GPay' | 'Card' | 'Net Banking'>('Cash');
 
   // Completed Receipt state for printing
   const [receipt, setReceipt] = useState<any | null>(null);
@@ -320,7 +320,7 @@ export const BillingTerminal: React.FC = () => {
           <div className="border-t border-[#1e2d3d]/50 pt-3 flex flex-col gap-2.5">
             <span className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider">Payment Mode</span>
             <div className="grid grid-cols-2 gap-1.5">
-              {(['Cash', 'UPI', 'Card', 'Net Banking'] as const).map((mode) => (
+              {(['Cash', 'UPI', 'GPay', 'Card', 'Net Banking'] as const).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setPaymentMode(mode)}
@@ -382,7 +382,7 @@ export const BillingTerminal: React.FC = () => {
               style={{ minHeight: '300px' }}
             >
               <div className="text-center border-b border-dashed border-black pb-2 mb-2">
-                <h3 className="font-bold text-sm uppercase">Creo Corp Saloon</h3>
+                <h3 className="font-bold text-sm uppercase">CreoCorpBilling</h3>
                 <p className="text-[9px]">123 Luxury Avenue, Bangalore</p>
                 <p className="text-[9px]">Tel: +91 98765 43210</p>
               </div>
@@ -415,7 +415,7 @@ export const BillingTerminal: React.FC = () => {
 
               <div className="text-center pt-2">
                 <p className="font-bold uppercase tracking-widest text-[9px]">Mode: {receipt.paymentMode}</p>
-                <p className="mt-2 text-[8px] italic">Thank you for visiting Creo Corp!</p>
+                <p className="mt-2 text-[8px] italic">Thank you for visiting CreoCorpBilling!</p>
               </div>
             </div>
 

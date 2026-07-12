@@ -16,7 +16,7 @@ export const createTransactionSchema = z.object({
     discountAmount: z.number().nonnegative().optional(),
     subtotal: z.number().nonnegative().optional(),
     total: z.number().nonnegative().optional(),
-    paymentMode: z.enum(['Cash', 'UPI', 'Card', 'Net Banking']),
+    paymentMode: z.enum(['Cash', 'UPI', 'GPay', 'Card', 'Net Banking']),
   }),
 });
 
@@ -27,13 +27,13 @@ export const updateTransactionSchema = z.object({
   body: z.object({
     customerName: z.string().min(1, 'Customer name is required').optional(),
     total: z.number().nonnegative().optional(),
-    paymentMode: z.enum(['Cash', 'UPI', 'Card', 'Net Banking']).optional(),
+    paymentMode: z.enum(['Cash', 'UPI', 'GPay', 'Card', 'Net Banking']).optional(),
   }),
 });
 
 export const getTransactions = async (req: Request, res: Response) => {
   try {
-    const { period, user, search } = req.query;
+    const { period, user, search, paymentMode, sortByAmount } = req.query;
 
     let queryText = `
       SELECT 
@@ -96,9 +96,21 @@ export const getTransactions = async (req: Request, res: Response) => {
       queryText += ` AND p.username = $${queryParams.length}`;
     }
 
+    if (paymentMode && paymentMode !== 'all') {
+      queryParams.push(paymentMode);
+      queryText += ` AND t.payment_mode = $${queryParams.length}`;
+    }
+
+    let orderByClause = 'ORDER BY t.created_at DESC';
+    if (sortByAmount === 'asc') {
+      orderByClause = 'ORDER BY t.total ASC, t.created_at DESC';
+    } else if (sortByAmount === 'desc') {
+      orderByClause = 'ORDER BY t.total DESC, t.created_at DESC';
+    }
+
     queryText += `
       GROUP BY t.id, c.id, p.id
-      ORDER BY t.created_at DESC
+      ${orderByClause}
     `;
 
     const result = await pool.query(queryText, queryParams);

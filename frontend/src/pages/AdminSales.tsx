@@ -6,6 +6,8 @@ export const AdminSales: React.FC = () => {
   const [period, setPeriod] = useState<string>('day');
   const [userFilter, setUserFilter] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
+  const [paymentModeFilter, setPaymentModeFilter] = useState<string>('all');
+  const [sortByAmount, setSortByAmount] = useState<string>('none');
   const [sales, setSales] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   
@@ -13,7 +15,7 @@ export const AdminSales: React.FC = () => {
   const [editTx, setEditTx] = useState<Transaction | null>(null);
   const [editName, setEditName] = useState('');
   const [editTotal, setEditTotal] = useState<number>(0);
-  const [editMode, setEditMode] = useState<'Cash' | 'UPI' | 'Card' | 'Net Banking'>('Cash');
+  const [editMode, setEditMode] = useState<'Cash' | 'UPI' | 'GPay' | 'Card' | 'Net Banking'>('Cash');
 
   // Stats
   const [netRevenue, setNetRevenue] = useState(0);
@@ -25,7 +27,13 @@ export const AdminSales: React.FC = () => {
     setIsLoading(true);
     try {
       const res = await apiClient.get('/transactions', {
-        params: { period, user: userFilter, search },
+        params: { 
+          period, 
+          user: userFilter, 
+          search,
+          paymentMode: paymentModeFilter,
+          sortByAmount: sortByAmount !== 'none' ? sortByAmount : undefined
+        },
       });
       if (res.data.status === 'success') {
         const data = res.data.data || [];
@@ -50,7 +58,7 @@ export const AdminSales: React.FC = () => {
 
   useEffect(() => {
     fetchSales();
-  }, [period, userFilter, search]);
+  }, [period, userFilter, search, paymentModeFilter, sortByAmount]);
 
   const handleDownloadCSV = () => {
     let csv = 'Date/Time,Customer,Phone,Services,Discount,Total,Payment,Terminal\n';
@@ -141,6 +149,29 @@ export const AdminSales: React.FC = () => {
             placeholder="Search by customer or service..."
             className="bg-[#1c2532] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs font-medium text-[#e8edf2] placeholder-[#5a6a7a] focus:border-[#c9a84c] outline-none w-56"
           />
+
+          <select
+            value={paymentModeFilter}
+            onChange={(e) => setPaymentModeFilter(e.target.value)}
+            className="bg-[#1c2532] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs font-medium text-[#e8edf2] focus:border-[#c9a84c] outline-none"
+          >
+            <option value="all">All Payment Modes</option>
+            <option value="Cash">Cash</option>
+            <option value="UPI">UPI</option>
+            <option value="GPay">GPay</option>
+            <option value="Card">Card</option>
+            <option value="Net Banking">Net Banking</option>
+          </select>
+
+          <select
+            value={sortByAmount}
+            onChange={(e) => setSortByAmount(e.target.value)}
+            className="bg-[#1c2532] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs font-medium text-[#e8edf2] focus:border-[#c9a84c] outline-none"
+          >
+            <option value="none">Sort: Date/Time</option>
+            <option value="asc">Amount: Lowest to Highest</option>
+            <option value="desc">Amount: Highest to Lowest</option>
+          </select>
         </div>
 
         <button
@@ -291,6 +322,7 @@ export const AdminSales: React.FC = () => {
                 >
                   <option value="Cash">Cash</option>
                   <option value="UPI">UPI</option>
+                  <option value="GPay">GPay</option>
                   <option value="Card">Card</option>
                   <option value="Net Banking">Net Banking</option>
                 </select>

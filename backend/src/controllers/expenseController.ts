@@ -8,7 +8,7 @@ export const createExpenseSchema = z.object({
     description: z.string().min(1, 'Description is required'),
     category: z.enum(['Product Purchase', 'Utilities', 'Maintenance', 'Salary', 'Rent', 'Marketing', 'Other']),
     amount: z.number().positive('Amount must be greater than zero'),
-    payment_mode: z.enum(['Cash', 'UPI', 'Card', 'Net Banking']),
+    payment_mode: z.enum(['Cash', 'UPI', 'GPay', 'Card', 'Net Banking']),
     note: z.string().optional(),
   }),
 });
@@ -21,7 +21,7 @@ export const updateExpenseSchema = z.object({
     description: z.string().min(1, 'Description is required').optional(),
     amount: z.number().positive('Amount must be greater than zero').optional(),
     category: z.enum(['Product Purchase', 'Utilities', 'Maintenance', 'Salary', 'Rent', 'Marketing', 'Other']).optional(),
-    payment_mode: z.enum(['Cash', 'UPI', 'Card', 'Net Banking']).optional(),
+    payment_mode: z.enum(['Cash', 'UPI', 'GPay', 'Card', 'Net Banking']).optional(),
     note: z.string().optional(),
   }),
 });

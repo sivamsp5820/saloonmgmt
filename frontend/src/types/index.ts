@@ -15,6 +15,12 @@ export interface Service {
   is_active?: boolean;
 }
 
+export interface ServiceCategory {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
 export interface Customer {
   id: string;
   name: string;
@@ -42,7 +48,7 @@ export interface Transaction {
   discount_value: number;
   discount_amount: number;
   total: number;
-  paymentMode: 'Cash' | 'UPI' | 'Card' | 'Net Banking';
+  paymentMode: 'Cash' | 'UPI' | 'GPay' | 'Card' | 'Net Banking';
   billedBy: string;
   billedByName: string;
   services: TransactionService[];
@@ -53,7 +59,7 @@ export interface Expense {
   description: string;
   category: 'Product Purchase' | 'Utilities' | 'Maintenance' | 'Salary' | 'Rent' | 'Marketing' | 'Other';
   amount: number;
-  payment_mode: 'Cash' | 'UPI' | 'Card' | 'Net Banking';
+  payment_mode: 'Cash' | 'UPI' | 'GPay' | 'Card' | 'Net Banking';
   note?: string;
   created_at: string;
   recorded_by: string;

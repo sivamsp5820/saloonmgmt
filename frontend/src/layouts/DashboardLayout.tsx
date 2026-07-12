@@ -146,7 +146,7 @@ export const DashboardLayout: React.FC = () => {
   // Determine topbar title
   const getPageTitle = () => {
     const current = activeNav.find(n => location.pathname === n.path);
-    return current ? `${current.label} ${user?.role === 'billing' ? 'Workstation' : 'Overview'}` : 'Creo Corp';
+    return current ? `${current.label} ${user?.role === 'billing' ? 'Workstation' : 'Overview'}` : 'CreoCorpBilling';
   };
 
   const formattedDate = new Date().toLocaleDateString('en-IN', {
@@ -164,7 +164,7 @@ export const DashboardLayout: React.FC = () => {
         <div className="p-6 border-b border-[#1e2d3d]">
           <div className="font-serif text-xl font-black text-[#c9a84c] tracking-widest flex items-center gap-2">
             <span>✂️</span>
-            <span>Creo Corp</span>
+            <span>CreoCorpBilling</span>
           </div>
           <p className="text-[10px] text-[#5a6a7a] tracking-[3px] uppercase mt-1">Saloon Billing</p>
         </div>

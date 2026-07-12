@@ -7,6 +7,16 @@ INSERT INTO profiles (id, username, password_hash, name, role) VALUES
 ('d0000000-0000-0000-0000-000000000002', 'billing2', '$2a$10$5HUdMo8nyA./G.1RuYTLh.ze7/UcXNvYMOyBYl0u.QWPvRY2pojDe', 'Counter Cashier Terminal 2', 'billing')
 ON CONFLICT (username) DO NOTHING;
 
+-- 1.5. Insert Default Service Categories
+INSERT INTO service_categories (id, name) VALUES
+('b1000000-0000-0000-0000-000000000001', 'Hair'),
+('b1000000-0000-0000-0000-000000000002', 'Skin'),
+('b1000000-0000-0000-0000-000000000003', 'Beard'),
+('b1000000-0000-0000-0000-000000000004', 'Nails'),
+('b1000000-0000-0000-0000-000000000005', 'Spa'),
+('b1000000-0000-0000-0000-000000000006', 'Uncategorized')
+ON CONFLICT (name) DO NOTHING;
+
 -- 2. Insert Default Services
 INSERT INTO services (id, name, category, price, duration, description) VALUES
 ('a1000000-0000-0000-0000-000000000001', 'Haircut (Men)', 'Hair', 150.00, 30, 'Classic precision cut'),
@@ -79,7 +89,7 @@ DECLARE
         'd0000000-0000-0000-0000-000000000001'::UUID,
         'd0000000-0000-0000-0000-000000000002'::UUID
     ];
-    modes_list VARCHAR[] := ARRAY['Cash', 'UPI', 'Card'];
+    modes_list VARCHAR[] := ARRAY['Cash', 'UPI', 'GPay', 'Card'];
     exp_cats VARCHAR[] := ARRAY['Product Purchase', 'Utilities', 'Maintenance', 'Salary', 'Rent', 'Marketing', 'Other'];
     exp_desc VARCHAR[] := ARRAY['Shampoo purchase', 'Electricity bill', 'Water supplier bill', 'Salon chair repair', 'Cashier advance payment', 'Local flyer marketing', 'Coffee & snacks for customers'];
 BEGIN

@@ -13,11 +13,18 @@ CREATE TABLE IF NOT EXISTS profiles (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 1.5. Create Service Categories Table
+CREATE TABLE IF NOT EXISTS service_categories (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(50) UNIQUE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 2. Create Services Table (Treatments)
 CREATE TABLE IF NOT EXISTS services (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100) NOT NULL,
-    category VARCHAR(50) NOT NULL,
+    category VARCHAR(50) NOT NULL REFERENCES service_categories(name) ON UPDATE CASCADE,
     price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
     duration INTEGER NOT NULL DEFAULT 30 CHECK (duration > 0), -- in minutes
     description TEXT,
@@ -42,7 +49,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     discount_value NUMERIC(10, 2) NOT NULL DEFAULT 0.00 CHECK (discount_value >= 0),
     discount_amount NUMERIC(10, 2) NOT NULL DEFAULT 0.00 CHECK (discount_amount >= 0),
     total NUMERIC(10, 2) NOT NULL CHECK (total >= 0),
-    payment_mode VARCHAR(20) NOT NULL CHECK (payment_mode IN ('Cash', 'UPI', 'Card', 'Net Banking')),
+    payment_mode VARCHAR(20) NOT NULL CHECK (payment_mode IN ('Cash', 'UPI', 'GPay', 'Card', 'Net Banking')),
     billed_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -61,7 +68,7 @@ CREATE TABLE IF NOT EXISTS expenses (
     description VARCHAR(255) NOT NULL,
     category VARCHAR(50) NOT NULL CHECK (category IN ('Product Purchase', 'Utilities', 'Maintenance', 'Salary', 'Rent', 'Marketing', 'Other')),
     amount NUMERIC(10, 2) NOT NULL CHECK (amount > 0),
-    payment_mode VARCHAR(20) NOT NULL CHECK (payment_mode IN ('Cash', 'UPI', 'Card', 'Net Banking')),
+    payment_mode VARCHAR(20) NOT NULL CHECK (payment_mode IN ('Cash', 'UPI', 'GPay', 'Card', 'Net Banking')),
     note TEXT,
     recorded_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
