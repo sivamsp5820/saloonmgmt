@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import type { Expense } from '../types';
+import { useStaffProfiles } from '../hooks/useStaffProfiles';
 
 export const AdminExpenses: React.FC = () => {
   const [period, setPeriod] = useState<string>('month');
@@ -8,6 +9,7 @@ export const AdminExpenses: React.FC = () => {
   const [catFilter, setCatFilter] = useState<string>('all');
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { profiles: staffProfiles } = useStaffProfiles();
 
   // New/Edit Expense Modal States
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -125,9 +127,9 @@ export const AdminExpenses: React.FC = () => {
             className="bg-[#1c2532] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs font-medium text-[#e8edf2] focus:border-[#c9a84c] outline-none"
           >
             <option value="all">All recorded by</option>
-            <option value="admin">Administrator</option>
-            <option value="billing1">Terminal 1</option>
-            <option value="billing2">Terminal 2</option>
+            {staffProfiles.map(p => (
+              <option key={p.id} value={p.username}>{p.name}</option>
+            ))}
           </select>
 
           <select

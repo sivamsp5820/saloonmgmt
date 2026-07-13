@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import type { Transaction } from '../types';
+import { useStaffProfiles } from '../hooks/useStaffProfiles';
 
 export const AdminSales: React.FC = () => {
   const [period, setPeriod] = useState<string>('day');
@@ -10,6 +11,7 @@ export const AdminSales: React.FC = () => {
   const [sortByAmount, setSortByAmount] = useState<string>('none');
   const [sales, setSales] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { profiles: staffProfiles } = useStaffProfiles();
   
   // Edit Invoice states
   const [editTx, setEditTx] = useState<Transaction | null>(null);
@@ -138,8 +140,9 @@ export const AdminSales: React.FC = () => {
             className="bg-[#1c2532] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs font-medium text-[#e8edf2] focus:border-[#c9a84c] outline-none"
           >
             <option value="all">All Terminals</option>
-            <option value="billing1">Terminal 1</option>
-            <option value="billing2">Terminal 2</option>
+            {staffProfiles.filter(p => p.role === 'billing').map(p => (
+              <option key={p.id} value={p.username}>{p.name}</option>
+            ))}
           </select>
 
           <input
