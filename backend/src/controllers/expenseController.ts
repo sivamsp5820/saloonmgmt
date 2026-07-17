@@ -67,7 +67,10 @@ export const getExpenses = async (req: Request, res: Response) => {
       queryText += ` AND e.created_at >= $${queryParams.length}`;
     }
 
-    if (user && user !== 'all') {
+    if (req.user?.role !== 'admin') {
+      queryParams.push(req.user?.id);
+      queryText += ` AND e.recorded_by = $${queryParams.length}`;
+    } else if (user && user !== 'all') {
       queryParams.push(user);
       queryText += ` AND p.username = $${queryParams.length}`;
     }

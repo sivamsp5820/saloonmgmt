@@ -91,7 +91,10 @@ export const getTransactions = async (req: Request, res: Response) => {
       queryText += ` AND t.created_at >= $${queryParams.length}`;
     }
 
-    if (user && user !== 'all') {
+    if (req.user?.role !== 'admin') {
+      queryParams.push(req.user?.id);
+      queryText += ` AND t.billed_by = $${queryParams.length}`;
+    } else if (user && user !== 'all') {
       queryParams.push(user);
       queryText += ` AND p.username = $${queryParams.length}`;
     }

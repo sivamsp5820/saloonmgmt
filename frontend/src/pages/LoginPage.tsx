@@ -50,7 +50,7 @@ export const LoginPage: React.FC = () => {
         <div className="text-center mb-9">
           <span className="text-5xl block mb-3 animate-bounce">✂️</span>
           <h1 className="font-serif text-3xl font-black text-[#c9a84c] tracking-widest">CreoCorpBilling</h1>
-          <p className="text-[11px] text-[#5a6a7a] tracking-[4px] uppercase mt-1">Saloon Billing</p>
+          {/* <p className="text-[11px] text-[#5a6a7a] tracking-[4px] uppercase mt-1">Saloon Billing</p> */}
         </div>
 
         {/* Validation Errors */}

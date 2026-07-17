@@ -8,7 +8,9 @@ export const getDashboardReport = async (req: Request, res: Response) => {
 
     // 1. Fetch profiles if specific username is requested
     let profileId: string | null = null;
-    if (user && user !== 'all') {
+    if (req.user?.role !== 'admin') {
+      profileId = req.user?.id || null;
+    } else if (user && user !== 'all') {
       const profileRes = await pool.query('SELECT id FROM profiles WHERE username = $1 LIMIT 1', [user]);
       if (profileRes.rows.length > 0) {
         profileId = profileRes.rows[0].id;
@@ -159,7 +161,9 @@ export const getPaymentReport = async (req: Request, res: Response) => {
 
     // Fetch user profile if requested
     let profileId: string | null = null;
-    if (user && user !== 'all') {
+    if (req.user?.role !== 'admin') {
+      profileId = req.user?.id || null;
+    } else if (user && user !== 'all') {
       const profileRes = await pool.query('SELECT id FROM profiles WHERE username = $1 LIMIT 1', [user]);
       if (profileRes.rows.length > 0) {
         profileId = profileRes.rows[0].id;
