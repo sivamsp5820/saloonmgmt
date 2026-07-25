@@ -74,6 +74,18 @@ CREATE TABLE IF NOT EXISTS expenses (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 7. Create Email Settings Table
+CREATE TABLE IF NOT EXISTS email_settings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    recipient_email VARCHAR(255) NOT NULL DEFAULT 'andigitalmount@gmail.com',
+    recipient_name VARCHAR(100) DEFAULT 'Store Manager',
+    subject_prefix VARCHAR(100) DEFAULT 'CreoCorp Billing Report',
+    send_daily_sales BOOLEAN DEFAULT TRUE,
+    send_shift_checkout BOOLEAN DEFAULT TRUE,
+    send_expense_alerts BOOLEAN DEFAULT FALSE,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ── Create Performance Indexes ──
 CREATE INDEX IF NOT EXISTS idx_profiles_username ON profiles(username);
 CREATE INDEX IF NOT EXISTS idx_services_category ON services(category);

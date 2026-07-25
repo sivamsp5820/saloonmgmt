@@ -14,7 +14,8 @@ import {
   LogOut,
   User as UserIcon,
   Calendar,
-  Trash2
+  Trash2,
+  Mail
 } from 'lucide-react';
 
 interface NavItem {
@@ -147,6 +148,7 @@ export const DashboardLayout: React.FC = () => {
     { path: '/admin/payments', label: 'Payment Modes', icon: <CreditCard size={18} /> },
     { path: '/admin/services', label: 'Services', icon: <Settings size={18} /> },
     { path: '/admin/staff', label: 'Staff Management', icon: <UserIcon size={18} /> },
+    { path: '/admin/email-settings', label: 'Email Settings', icon: <Mail size={18} /> },
   ];
 
   const cashierNav: NavItem[] = [

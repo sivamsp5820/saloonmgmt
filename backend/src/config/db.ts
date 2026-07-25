@@ -90,7 +90,29 @@ export const initializeDatabase = async () => {
       logger.warn(`DATABASE: Migration file not found at ${migrationPath}`);
     }
 
-    // 3. Check if seeding is required (e.g. check if profiles table has any user)
+    // 3. Check and seed email_settings if empty
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS email_settings (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        recipient_email VARCHAR(255) NOT NULL DEFAULT 'andigitalmount@gmail.com',
+        recipient_name VARCHAR(100) DEFAULT 'Store Manager',
+        subject_prefix VARCHAR(100) DEFAULT 'CreoCorp Billing Report',
+        send_daily_sales BOOLEAN DEFAULT TRUE,
+        send_shift_checkout BOOLEAN DEFAULT TRUE,
+        send_expense_alerts BOOLEAN DEFAULT FALSE,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    const emailSettingsCheck = await client.query('SELECT COUNT(*) FROM email_settings');
+    if (parseInt(emailSettingsCheck.rows[0].count, 10) === 0) {
+      await client.query(`
+        INSERT INTO email_settings (recipient_email, recipient_name, subject_prefix, send_daily_sales, send_shift_checkout, send_expense_alerts)
+        VALUES ('andigitalmount@gmail.com', 'Store Administrator', 'CreoCorp Billing Report', TRUE, TRUE, FALSE);
+      `);
+      logger.info('DATABASE: Seeded default email settings.');
+    }
+
+    // 4. Check if seeding is required (e.g. check if profiles table has any user)
     const profileCheck = await client.query('SELECT COUNT(*) FROM profiles');
     const profileCount = parseInt(profileCheck.rows[0].count, 10);
 

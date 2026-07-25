@@ -15,6 +15,7 @@ import expenseRoutes from './routes/expenseRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import reportRoutes from './routes/reportRoutes';
 import systemRoutes from './routes/systemRoutes';
+import emailSettingsRoutes from './routes/emailSettingsRoutes';
 
 dotenv.config();
 
@@ -64,6 +65,7 @@ app.use('/api/v1/expenses', expenseRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
 app.use('/api/v1/reports', reportRoutes);
 app.use('/api/v1/system', systemRoutes);
+app.use('/api/v1/email-settings', emailSettingsRoutes);
 
 // Health Check Route
 app.get('/health', (req: Request, res: Response) => {

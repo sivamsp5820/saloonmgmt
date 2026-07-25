@@ -270,6 +270,8 @@ export const getPaymentReport = async (req: Request, res: Response) => {
   }
 };
 
+import { sendShiftReportEmailWithExcel, generateBillerShiftExcelBuffer } from '../services/emailService';
+
 export const sendDailyReport = async (req: Request, res: Response) => {
   try {
     const { billedBy, totalBills, netRevenue } = req.body;
@@ -278,19 +280,47 @@ export const sendDailyReport = async (req: Request, res: Response) => {
       return res.status(400).json({ status: 'error', message: 'Workstation context missing.' });
     }
 
-    // Node SMTP Nodemailer Simulation (or real implementation if SMTP variables are set in environment)
-    logger.info(`📧 SECURE SMTP DISPATCH: Shifts Checkouts Logged:`);
-    logger.info(`Operator Terminal: ${billedBy}`);
-    logger.info(`Total Transactions: ${totalBills}`);
-    logger.info(`Total shift revenue: ₹${netRevenue}`);
-    logger.info(`Target inbox: andigitalmount@gmail.com`);
+    // Query email_settings table for configured recipient email
+    let recipientEmail = 'andigitalmount@gmail.com';
+    const settingsRes = await pool.query('SELECT recipient_email FROM email_settings LIMIT 1');
+    if (settingsRes.rows.length > 0 && settingsRes.rows[0].recipient_email) {
+      recipientEmail = settingsRes.rows[0].recipient_email;
+    }
+
+    // Generate Excel attachment & send email via Nodemailer
+    await sendShiftReportEmailWithExcel({
+      billedByUsername: billedBy,
+      profileId: req.user?.id || null,
+      recipientEmail,
+      totalBills: typeof totalBills === 'number' ? totalBills : parseInt(totalBills || '0', 10),
+      netRevenue: typeof netRevenue === 'number' ? netRevenue : parseFloat(netRevenue || '0'),
+    });
+
+    logger.info(`📧 NODEMAILER & EXCEL DISPATCH: Shift report sent for ${billedBy} to ${recipientEmail}`);
 
     return res.json({
       status: 'success',
-      message: 'Daily shift sales report compiled and sent securely to admin email.',
+      message: `Shift billing details compiled into Excel and sent to ${recipientEmail}.`,
     });
   } catch (err: any) {
     logger.error(`Error in sendDailyReport: ${err.message}`);
     return res.status(500).json({ status: 'error', message: 'Failed to dispatch report.' });
+  }
+};
+
+export const exportShiftExcel = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.query;
+    const billerUser = (username as string) || req.user?.username || 'Cashier';
+    const excelBuffer = await generateBillerShiftExcelBuffer(billerUser, req.user?.id);
+
+    const filename = `Shift_Billed_Details_${billerUser}_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.send(excelBuffer);
+  } catch (err: any) {
+    logger.error(`Error in exportShiftExcel: ${err.message}`);
+    return res.status(500).json({ status: 'error', message: 'Failed to export Excel spreadsheet.' });
   }
 };

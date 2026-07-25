@@ -13,6 +13,7 @@ import { AdminExpenses } from './pages/AdminExpenses';
 import { AdminPayments } from './pages/AdminPayments';
 import { AdminServices } from './pages/AdminServices';
 import { AdminStaff } from './pages/AdminStaff';
+import { AdminEmailSettings } from './pages/AdminEmailSettings';
 
 import { BillingTerminal } from './pages/BillingTerminal';
 import { BillingExpenses } from './pages/BillingExpenses';
@@ -36,6 +37,7 @@ const App: React.FC = () => {
               <Route path="/admin/payments" element={<AdminPayments />} />
               <Route path="/admin/services" element={<AdminServices />} />
               <Route path="/admin/staff" element={<AdminStaff />} />
+              <Route path="/admin/email-settings" element={<AdminEmailSettings />} />
             </Route>
           </Route>
 
