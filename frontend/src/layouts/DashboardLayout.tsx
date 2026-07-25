@@ -28,10 +28,23 @@ export const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Load online status from localStorage to persist across subpages
+  // Load online status from localStorage (defaulting to true on login for billing users)
   const [isOnline, setIsOnline] = useState<boolean>(() => {
-    return localStorage.getItem('gc_terminal_online') === 'true';
+    const val = localStorage.getItem('gc_terminal_online');
+    if (val === null) return true;
+    return val === 'true';
   });
+
+  // Ensure default is Online for billing users upon session start if not explicitly set
+  useEffect(() => {
+    if (user?.role === 'billing') {
+      const val = localStorage.getItem('gc_terminal_online');
+      if (val === null) {
+        setIsOnline(true);
+        localStorage.setItem('gc_terminal_online', 'true');
+      }
+    }
+  }, [user]);
 
   const [toastMsg, setToastMsg] = useState<{ text: string; type: 'ok' | 'err' } | null>(null);
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
@@ -109,17 +122,18 @@ export const DashboardLayout: React.FC = () => {
     localStorage.setItem('gc_terminal_online', String(nextState));
 
     if (!nextState) {
-      // Cashier toggled offline: send daily checkout email
+      // Cashier toggled offline: send daily checkout report
       triggerDailyReport();
+      showToast('Status switched to Offline. You can now log out.', 'ok');
+    } else {
+      showToast('Business status switched to Online.', 'ok');
     }
   };
 
   const handleLogout = () => {
     if (user?.role === 'billing' && isOnline) {
-      // Auto toggle offline on logout if cashier is online
-      setIsOnline(false);
-      localStorage.setItem('gc_terminal_online', 'false');
-      triggerDailyReport();
+      showToast('Please turn Business status to Offline before logging out.', 'err');
+      return;
     }
     logout();
     navigate('/login');
@@ -210,10 +224,18 @@ export const DashboardLayout: React.FC = () => {
           </div>
           <button
             onClick={handleLogout}
-            className="w-full py-2.5 bg-red-500/10 border border-red-500/25 rounded-lg text-[#ff8080] text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-500/25 transition-all duration-200"
+            title={user?.role === 'billing' && isOnline ? 'Switch Business to Offline before logging out' : 'Logout'}
+            className={`w-full py-2.5 border rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all duration-200 ${
+              user?.role === 'billing' && isOnline
+                ? 'bg-amber-500/10 border-amber-500/25 text-amber-400 hover:bg-amber-500/20'
+                : 'bg-red-500/10 border-red-500/25 text-[#ff8080] hover:bg-red-500/25'
+            }`}
           >
             <LogOut size={14} />
             <span>Logout</span>
+            {user?.role === 'billing' && isOnline && (
+              <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-mono font-normal">Online</span>
+            )}
           </button>
         </div>
       </aside>

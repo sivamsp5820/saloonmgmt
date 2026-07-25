@@ -1,0 +1,29 @@
+========================================================================================
+📌 HOW TO CHANGE THE CHROME BAR / BROWSER TAB ICON (FAVICON)
+========================================================================================
+
+To change the icon that appears on the browser tab (Chrome bar):
+
+METHOD 1: Replace existing favicon.svg
+--------------------------------------
+1. Save your new icon as an SVG file named `favicon.svg`.
+2. Replace `frontend/public/favicon.svg` with your new file.
+3. Refresh your browser (or press Ctrl + F5 to hard refresh cache).
+
+METHOD 2: Use custom icon image (PNG / ICO / SVG)
+--------------------------------------------------
+1. Copy your custom icon image file (e.g., `my_logo.png`, `favicon.ico`, `logo.svg`) into `frontend/public/`.
+2. Open `frontend/index.html`.
+3. Update the favicon link tag in `<head>`:
+
+   For PNG:
+   <link rel="icon" type="image/png" href="/my_logo.png" />
+
+   For ICO:
+   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+   For SVG:
+   <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+
+4. Save the file and refresh your browser tab.
+========================================================================================

@@ -29,6 +29,8 @@ export const LoginPage: React.FC = () => {
         if (u.role === 'admin') {
           navigate('/admin/dashboard');
         } else {
+          // Automatically set status to Online by default when user logs in
+          localStorage.setItem('gc_terminal_online', 'true');
           navigate('/billing/terminal');
         }
       }
@@ -49,8 +51,14 @@ export const LoginPage: React.FC = () => {
         {/* Logo and Branding */}
         <div className="text-center mb-9">
           <span className="text-5xl block mb-3 animate-bounce">✂️</span>
-          <h1 className="font-serif text-3xl font-black text-[#c9a84c] tracking-widest">CreoCorpBilling</h1>
-          {/* <p className="text-[11px] text-[#5a6a7a] tracking-[4px] uppercase mt-1">Saloon Billing</p> */}
+          <h1 className="flex flex-col items-center justify-center gap-1 select-none">
+            <span className="font-serif text-4xl font-black text-[#c9a84c] tracking-[0.15em] leading-none drop-shadow-[0_2px_12px_rgba(201,168,76,0.35)]">
+              CreoCorp
+            </span>
+            <span className="font-montserrat text-xl font-extrabold text-[#e8edf2] tracking-[0.4em] uppercase italic opacity-95 mt-1 border-t border-[#c9a84c]/20 pt-1.5 px-3">
+              Billing
+            </span>
+          </h1>
         </div>
 
         {/* Validation Errors */}
