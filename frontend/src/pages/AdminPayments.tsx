@@ -59,9 +59,9 @@ export const AdminPayments: React.FC = () => {
       </div>
 
       {/* ── Collection aggregates ── */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         {report?.stats.map((s, idx) => {
-          const emoji = s.paymentMode === 'Cash' ? '💵' : s.paymentMode === 'UPI' ? '📱' : s.paymentMode === 'Card' ? '💳' : '🌐';
+          const emoji = s.paymentMode === 'Cash' ? '💵' : s.paymentMode === 'UPI' ? '📱' : '💳';
           return (
             <div key={idx} className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5 relative overflow-hidden">
               <span className="text-xl mb-2 block">{emoji}</span>

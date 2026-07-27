@@ -6,7 +6,6 @@ import { useStaffProfiles } from '../hooks/useStaffProfiles';
 export const AdminExpenses: React.FC = () => {
   const [period, setPeriod] = useState<string>('month');
   const [userFilter, setUserFilter] = useState<string>('all');
-  const [catFilter, setCatFilter] = useState<string>('all');
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { profiles: staffProfiles } = useStaffProfiles();
@@ -16,15 +15,15 @@ export const AdminExpenses: React.FC = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [desc, setDesc] = useState('');
   const [amount, setAmount] = useState<number>(0);
-  const [category, setCategory] = useState<'Product Purchase' | 'Utilities' | 'Maintenance' | 'Salary' | 'Rent' | 'Marketing' | 'Other'>('Other');
-  const [paymentMode, setPaymentMode] = useState<'Cash' | 'UPI' | 'GPay' | 'Card' | 'Net Banking'>('Cash');
+  const [category] = useState<'Product Purchase' | 'Utilities' | 'Maintenance' | 'Salary' | 'Rent' | 'Marketing' | 'Other'>('Other');
+  const [paymentMode, setPaymentMode] = useState<'Cash' | 'UPI' | 'GPay'>('Cash');
   const [note, setNote] = useState('');
 
   const fetchExpenses = async () => {
     setIsLoading(true);
     try {
       const res = await apiClient.get('/expenses', {
-        params: { period, user: userFilter, category: catFilter },
+        params: { period, user: userFilter },
       });
       if (res.data.status === 'success') {
         setExpenses(res.data.data || []);
@@ -38,13 +37,12 @@ export const AdminExpenses: React.FC = () => {
 
   useEffect(() => {
     fetchExpenses();
-  }, [period, userFilter, catFilter]);
+  }, [period, userFilter]);
 
   const handleOpenAdd = () => {
     setEditId(null);
     setDesc('');
     setAmount(0);
-    setCategory('Other');
     setPaymentMode('Cash');
     setNote('');
     setShowModal(true);
@@ -54,7 +52,6 @@ export const AdminExpenses: React.FC = () => {
     setEditId(exp.id);
     setDesc(exp.description);
     setAmount(exp.amount);
-    setCategory(exp.category);
     setPaymentMode(exp.payment_mode);
     setNote(exp.note || '');
     setShowModal(true);
@@ -131,21 +128,6 @@ export const AdminExpenses: React.FC = () => {
               <option key={p.id} value={p.username}>{p.name}</option>
             ))}
           </select>
-
-          <select
-            value={catFilter}
-            onChange={(e) => setCatFilter(e.target.value)}
-            className="bg-[#1c2532] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs font-medium text-[#e8edf2] focus:border-[#c9a84c] outline-none"
-          >
-            <option value="all">All Categories</option>
-            <option value="Product Purchase">Product Purchase</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Maintenance">Maintenance</option>
-            <option value="Salary">Salary</option>
-            <option value="Rent">Rent</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Other">Other</option>
-          </select>
         </div>
 
         <button
@@ -171,7 +153,6 @@ export const AdminExpenses: React.FC = () => {
               <tr className="border-b border-[#1e2d3d]">
                 <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Date</th>
                 <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Description</th>
-                <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Category</th>
                 <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Amount</th>
                 <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Payment</th>
                 <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Operator</th>
@@ -182,7 +163,7 @@ export const AdminExpenses: React.FC = () => {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="text-center p-8 text-xs text-[#5a6a7a]">
+                  <td colSpan={7} className="text-center p-8 text-xs text-[#5a6a7a]">
                     <div className="w-6 h-6 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                     Loading expenses reports...
                   </td>
@@ -192,7 +173,6 @@ export const AdminExpenses: React.FC = () => {
                   <tr key={e.id} className="border-b border-[#1e2d3d]/50 hover:bg-white/[0.02] transition-all">
                     <td className="p-3 text-xs text-[#5a6a7a]">{new Date(e.created_at).toLocaleDateString('en-IN')}</td>
                     <td className="p-3 text-xs font-bold">{e.description}</td>
-                    <td className="p-3 text-xs text-[#c9a84c]">{e.category}</td>
                     <td className="p-3 text-xs font-extrabold text-[#c9a84c]">₹{parseFloat(e.amount as any).toFixed(2)}</td>
                     <td className="p-3 text-xs text-[#5a6a7a]">{e.payment_mode}</td>
                     <td className="p-3 text-xs">
@@ -219,7 +199,7 @@ export const AdminExpenses: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="text-center p-8 text-xs text-[#5a6a7a] italic">
+                  <td colSpan={7} className="text-center p-8 text-xs text-[#5a6a7a] italic">
                     No expense records found.
                   </td>
                 </tr>
@@ -250,36 +230,17 @@ export const AdminExpenses: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase text-[#c9a84c] tracking-wider">Amount (₹)</label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    value={amount || ''}
-                    onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                    placeholder="Amount paid"
-                    className="bg-[#0d1117] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs text-[#e8edf2] outline-none focus:border-[#c9a84c]"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase text-[#c9a84c] tracking-wider">Category</label>
-                  <select
-                    value={category}
-                    onChange={(e: any) => setCategory(e.target.value)}
-                    className="bg-[#0d1117] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs text-[#e8edf2] outline-none focus:border-[#c9a84c]"
-                  >
-                    <option value="Product Purchase">Product Purchase</option>
-                    <option value="Utilities">Utilities</option>
-                    <option value="Maintenance">Maintenance</option>
-                    <option value="Salary">Salary</option>
-                    <option value="Rent">Rent</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold uppercase text-[#c9a84c] tracking-wider">Amount (₹)</label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  value={amount || ''}
+                  onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
+                  placeholder="Amount paid"
+                  className="bg-[#0d1117] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs text-[#e8edf2] outline-none focus:border-[#c9a84c]"
+                />
               </div>
 
               <div className="flex flex-col gap-1">
@@ -292,8 +253,6 @@ export const AdminExpenses: React.FC = () => {
                   <option value="Cash">Cash</option>
                   <option value="UPI">UPI</option>
                   <option value="GPay">GPay</option>
-                  <option value="Card">Card</option>
-                  <option value="Net Banking">Net Banking</option>
                 </select>
               </div>
 

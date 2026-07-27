@@ -17,7 +17,7 @@ export const AdminSales: React.FC = () => {
   const [editTx, setEditTx] = useState<Transaction | null>(null);
   const [editName, setEditName] = useState('');
   const [editTotal, setEditTotal] = useState<number>(0);
-  const [editMode, setEditMode] = useState<'Cash' | 'UPI' | 'GPay' | 'Card' | 'Net Banking'>('Cash');
+  const [editMode, setEditMode] = useState<'Cash' | 'UPI' | 'GPay'>('Cash');
 
   // Stats
   const [netRevenue, setNetRevenue] = useState(0);
@@ -162,8 +162,6 @@ export const AdminSales: React.FC = () => {
             <option value="Cash">Cash</option>
             <option value="UPI">UPI</option>
             <option value="GPay">GPay</option>
-            <option value="Card">Card</option>
-            <option value="Net Banking">Net Banking</option>
           </select>
 
           <select
@@ -326,8 +324,6 @@ export const AdminSales: React.FC = () => {
                   <option value="Cash">Cash</option>
                   <option value="UPI">UPI</option>
                   <option value="GPay">GPay</option>
-                  <option value="Card">Card</option>
-                  <option value="Net Banking">Net Banking</option>
                 </select>
               </div>
             </div>

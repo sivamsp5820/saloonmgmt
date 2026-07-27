@@ -16,7 +16,7 @@ export const createTransactionSchema = z.object({
     discountAmount: z.number().nonnegative().optional(),
     subtotal: z.number().nonnegative().optional(),
     total: z.number().nonnegative().optional(),
-    paymentMode: z.enum(['Cash', 'UPI', 'GPay', 'Card', 'Net Banking']),
+    paymentMode: z.enum(['Cash', 'UPI', 'GPay']),
   }),
 });
 
@@ -27,7 +27,7 @@ export const updateTransactionSchema = z.object({
   body: z.object({
     customerName: z.string().min(1, 'Customer name is required').optional(),
     total: z.number().nonnegative().optional(),
-    paymentMode: z.enum(['Cash', 'UPI', 'GPay', 'Card', 'Net Banking']).optional(),
+    paymentMode: z.enum(['Cash', 'UPI', 'GPay']).optional(),
   }),
 });
 

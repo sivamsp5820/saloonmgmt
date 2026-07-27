@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import { useStaffProfiles } from '../hooks/useStaffProfiles';
 import type { DashboardStats } from '../types';
+import { AdminCustomers } from './AdminCustomers';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -18,6 +19,7 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 export const AdminDashboard: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'overview' | 'customers'>('overview');
   const [period, setPeriod] = useState<string>('day');
   const [userFilter, setUserFilter] = useState<string>('all');
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -110,190 +112,222 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       
-      {/* ── Filters ── */}
-      <div className="flex gap-3.5 items-center">
-        <select
-          value={period}
-          onChange={(e) => setPeriod(e.target.value)}
-          className="bg-[#1c2532] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs font-medium text-[#e8edf2] focus:border-[#c9a84c] outline-none"
+      {/* ── Dashboard Navigation Tabs ── */}
+      <div className="flex border-b border-[#1e2d3d] gap-2 pb-0">
+        <button
+          onClick={() => setActiveTab('overview')}
+          className={`px-5 py-2.5 text-xs font-bold transition-all border-b-2 flex items-center gap-2 rounded-t-lg select-none ${
+            activeTab === 'overview'
+              ? 'border-[#c9a84c] text-[#c9a84c] bg-[#c9a84c]/10'
+              : 'border-transparent text-[#5a6a7a] hover:text-[#e8edf2] hover:bg-white/5'
+          }`}
         >
-          <option value="day">Today</option>
-          <option value="week">This Week</option>
-          <option value="month">This Month</option>
-          <option value="year">This Year</option>
-        </select>
-
-        <select
-          value={userFilter}
-          onChange={(e) => setUserFilter(e.target.value)}
-          className="bg-[#1c2532] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs font-medium text-[#e8edf2] focus:border-[#c9a84c] outline-none"
+          <span>📊</span>
+          <span>Overview</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('customers')}
+          className={`px-5 py-2.5 text-xs font-bold transition-all border-b-2 flex items-center gap-2 rounded-t-lg select-none ${
+            activeTab === 'customers'
+              ? 'border-[#c9a84c] text-[#c9a84c] bg-[#c9a84c]/10'
+              : 'border-transparent text-[#5a6a7a] hover:text-[#e8edf2] hover:bg-white/5'
+          }`}
         >
-          <option value="all">All Terminals</option>
-          {staffProfiles.filter(p => p.role === 'billing').map(p => (
-            <option key={p.id} value={p.username}>{p.name}</option>
-          ))}
-        </select>
+          <span>👥</span>
+          <span>Customer Details</span>
+        </button>
       </div>
 
-      {/* ── Stats KPI Indicators ── */}
-      <div className="grid grid-cols-4 gap-4">
-        
-        {/* Rev */}
-        <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5 relative overflow-hidden">
-          <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-[#c9a84c]/5 pointer-events-none" />
-          <span className="text-2xl mb-2.5 block">💰</span>
-          <p className="text-2xl font-extrabold text-[#c9a84c] mb-1">₹{stats?.netRevenue.toLocaleString('en-IN')}</p>
-          <span className="text-[10px] text-[#5a6a7a] font-bold uppercase tracking-wider">Net Revenue</span>
-        </div>
+      {activeTab === 'customers' ? (
+        <AdminCustomers />
+      ) : (
+        <>
+          {/* ── Filters ── */}
+          <div className="flex gap-3.5 items-center">
+            <select
+              value={period}
+              onChange={(e) => setPeriod(e.target.value)}
+              className="bg-[#1c2532] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs font-medium text-[#e8edf2] focus:border-[#c9a84c] outline-none"
+            >
+              <option value="day">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="year">This Year</option>
+            </select>
 
-        {/* Bills */}
-        <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5 relative overflow-hidden">
-          <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-[#00c97a]/5 pointer-events-none" />
-          <span className="text-2xl mb-2.5 block">🧾</span>
-          <p className="text-2xl font-extrabold text-[#00c97a] mb-1">{stats?.transactionsCount}</p>
-          <span className="text-[10px] text-[#5a6a7a] font-bold uppercase tracking-wider">Transactions</span>
-        </div>
-
-        {/* Customers */}
-        <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5 relative overflow-hidden">
-          <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-[#4a9eff]/5 pointer-events-none" />
-          <span className="text-2xl mb-2.5 block">👤</span>
-          <p className="text-2xl font-extrabold text-[#4a9eff] mb-1">{stats?.customersCount}</p>
-          <span className="text-[10px] text-[#5a6a7a] font-bold uppercase tracking-wider">Customers</span>
-        </div>
-
-        {/* Services */}
-        <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5 relative overflow-hidden">
-          <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-red-500/5 pointer-events-none" />
-          <span className="text-2xl mb-2.5 block">✂️</span>
-          <p className="text-2xl font-extrabold text-red-300 mb-1">{stats?.totalServicesCount}</p>
-          <span className="text-[10px] text-[#5a6a7a] font-bold uppercase tracking-wider">Services Done</span>
-        </div>
-
-      </div>
-
-      {/* ── Charts Grid ── */}
-      <div className="grid grid-cols-2 gap-5">
-        
-        {/* Doughnut */}
-        <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5">
-          <div className="border-b border-[#1e2d3d] pb-3 mb-4">
-            <span className="text-xs font-bold text-[#c9a84c] uppercase tracking-wider">Revenue by Service</span>
+            <select
+              value={userFilter}
+              onChange={(e) => setUserFilter(e.target.value)}
+              className="bg-[#1c2532] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs font-medium text-[#e8edf2] focus:border-[#c9a84c] outline-none"
+            >
+              <option value="all">All Terminals</option>
+              {staffProfiles.filter(p => p.role === 'billing').map(p => (
+                <option key={p.id} value={p.username}>{p.name}</option>
+              ))}
+            </select>
           </div>
-          <div className="relative h-64 flex items-center justify-center">
-            {pieLabels.length > 0 ? (
-              <Doughnut
-                data={doughnutData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      position: 'right',
-                      labels: { color: '#5a6a7a', font: { size: 9 }, padding: 8 }
-                    },
-                    tooltip: {
-                      callbacks: {
-                        label: (c) => ` ₹${c.parsed.toLocaleString('en-IN')}`
+
+          {/* ── Stats KPI Indicators ── */}
+          <div className="grid grid-cols-4 gap-4">
+            
+            {/* Rev */}
+            <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5 relative overflow-hidden">
+              <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-[#c9a84c]/5 pointer-events-none" />
+              <span className="text-2xl mb-2.5 block">💰</span>
+              <p className="text-2xl font-extrabold text-[#c9a84c] mb-1">₹{stats?.netRevenue.toLocaleString('en-IN')}</p>
+              <span className="text-[10px] text-[#5a6a7a] font-bold uppercase tracking-wider">Net Revenue</span>
+            </div>
+
+            {/* Bills */}
+            <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5 relative overflow-hidden">
+              <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-[#00c97a]/5 pointer-events-none" />
+              <span className="text-2xl mb-2.5 block">🧾</span>
+              <p className="text-2xl font-extrabold text-[#00c97a] mb-1">{stats?.transactionsCount}</p>
+              <span className="text-[10px] text-[#5a6a7a] font-bold uppercase tracking-wider">Transactions</span>
+            </div>
+
+            {/* Customers */}
+            <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5 relative overflow-hidden">
+              <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-[#4a9eff]/5 pointer-events-none" />
+              <span className="text-2xl mb-2.5 block">👤</span>
+              <p className="text-2xl font-extrabold text-[#4a9eff] mb-1">{stats?.customersCount}</p>
+              <span className="text-[10px] text-[#5a6a7a] font-bold uppercase tracking-wider">Customers</span>
+            </div>
+
+            {/* Services */}
+            <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5 relative overflow-hidden">
+              <div className="absolute -top-5 -right-5 w-20 h-20 rounded-full bg-red-500/5 pointer-events-none" />
+              <span className="text-2xl mb-2.5 block">✂️</span>
+              <p className="text-2xl font-extrabold text-red-300 mb-1">{stats?.totalServicesCount}</p>
+              <span className="text-[10px] text-[#5a6a7a] font-bold uppercase tracking-wider">Services Done</span>
+            </div>
+
+          </div>
+
+          {/* ── Charts Grid ── */}
+          <div className="grid grid-cols-2 gap-5">
+            
+            {/* Doughnut */}
+            <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5">
+              <div className="border-b border-[#1e2d3d] pb-3 mb-4">
+                <span className="text-xs font-bold text-[#c9a84c] uppercase tracking-wider">Revenue by Service</span>
+              </div>
+              <div className="relative h-64 flex items-center justify-center">
+                {pieLabels.length > 0 ? (
+                  <Doughnut
+                    data={doughnutData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'right',
+                          labels: { color: '#5a6a7a', font: { size: 9 }, padding: 8 }
+                        },
+                        tooltip: {
+                          callbacks: {
+                            label: (c) => ` ₹${c.parsed.toLocaleString('en-IN')}`
+                          }
+                        }
                       }
-                    }
-                  }
-                }}
-              />
-            ) : (
-              <p className="text-xs text-[#5a6a7a] italic">No transaction data</p>
-            )}
-          </div>
-        </div>
+                    }}
+                  />
+                ) : (
+                  <p className="text-xs text-[#5a6a7a] italic">No transaction data</p>
+                )}
+              </div>
+            </div>
 
-        {/* Bar */}
-        <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5">
-          <div className="border-b border-[#1e2d3d] pb-3 mb-4">
-            <span className="text-xs font-bold text-[#c9a84c] uppercase tracking-wider">Revenue Trend</span>
-          </div>
-          <div className="relative h-64 flex items-center justify-center">
-            {barLabels.length > 0 ? (
-              <Bar
-                data={barData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                      callbacks: {
-                        label: (c) => ` ₹${c.parsed.y?.toLocaleString('en-IN') || c.raw}`
+            {/* Bar */}
+            <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5">
+              <div className="border-b border-[#1e2d3d] pb-3 mb-4">
+                <span className="text-xs font-bold text-[#c9a84c] uppercase tracking-wider">Revenue Trend</span>
+              </div>
+              <div className="relative h-64 flex items-center justify-center">
+                {barLabels.length > 0 ? (
+                  <Bar
+                    data={barData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                          callbacks: {
+                            label: (c) => ` ₹${c.parsed.y?.toLocaleString('en-IN') || c.raw}`
+                          }
+                        }
+                      },
+                      scales: {
+                        x: {
+                          ticks: { color: '#5a6a7a', font: { size: 9 } },
+                          grid: { color: 'rgba(255,255,255,.03)' }
+                        },
+                        y: {
+                          ticks: { color: '#5a6a7a', font: { size: 9 }, callback: (v) => '₹' + v },
+                          grid: { color: 'rgba(255,255,255,.03)' }
+                        }
                       }
-                    }
-                  },
-                  scales: {
-                    x: {
-                      ticks: { color: '#5a6a7a', font: { size: 9 } },
-                      grid: { color: 'rgba(255,255,255,.03)' }
-                    },
-                    y: {
-                      ticks: { color: '#5a6a7a', font: { size: 9 }, callback: (v) => '₹' + v },
-                      grid: { color: 'rgba(255,255,255,.03)' }
-                    }
-                  }
-                }}
-              />
-            ) : (
-              <p className="text-xs text-[#5a6a7a] italic">No trend data</p>
-            )}
+                    }}
+                  />
+                ) : (
+                  <p className="text-xs text-[#5a6a7a] italic">No trend data</p>
+                )}
+              </div>
+            </div>
+
           </div>
-        </div>
 
-      </div>
-
-      {/* ── Recent Transactions Table ── */}
-      <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5">
-        <div className="border-b border-[#1e2d3d] pb-3 mb-4">
-          <span className="text-xs font-bold text-[#c9a84c] uppercase tracking-wider">Recent Transactions</span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-[#1e2d3d]">
-                <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Date & Time</th>
-                <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Customer</th>
-                <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Services</th>
-                <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Terminal</th>
-                <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Amount</th>
-                <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Mode</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stats && stats.recentTransactions.length > 0 ? (
-                stats.recentTransactions.map((tx) => (
-                  <tr key={tx.id} className="border-b border-[#1e2d3d]/50 hover:bg-white/[0.02] transition-all">
-                    <td className="p-3 text-xs text-[#5a6a7a]">{new Date(tx.created_at).toLocaleString('en-IN')}</td>
-                    <td className="p-3 text-xs font-bold">{tx.customerName}</td>
-                    <td className="p-3 text-[11px] max-w-[200px] truncate">{tx.services}</td>
-                    <td className="p-3 text-xs">
-                      <span className="bg-[#4a9eff]/10 border border-[#4a9eff]/25 rounded text-[#4a9eff] px-2 py-0.5 text-[10px] font-bold uppercase">
-                        {tx.billedByName}
-                      </span>
-                    </td>
-                    <td className="p-3 text-xs font-black text-[#c9a84c]">₹{tx.total.toFixed(2)}</td>
-                    <td className="p-3 text-xs">
-                      <span className="bg-[#00c97a]/10 border border-[#00c97a]/25 rounded text-[#00c97a] px-2 py-0.5 text-[10px] font-bold uppercase">
-                        {tx.paymentMode}
-                      </span>
-                    </td>
+          {/* ── Recent Transactions Table ── */}
+          <div className="bg-[#161e28] border border-[#1e2d3d] rounded-xl p-5">
+            <div className="border-b border-[#1e2d3d] pb-3 mb-4">
+              <span className="text-xs font-bold text-[#c9a84c] uppercase tracking-wider">Recent Transactions</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-[#1e2d3d]">
+                    <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Date</th>
+                    <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Customer</th>
+                    <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Services</th>
+                    <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Terminal</th>
+                    <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Total</th>
+                    <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Payment</th>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="text-center p-8 text-xs text-[#5a6a7a] italic">
-                    No transactions captured.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                </thead>
+                <tbody>
+                  {stats?.recentTransactions && stats.recentTransactions.length > 0 ? (
+                    stats.recentTransactions.map((tx) => (
+                      <tr key={tx.id} className="border-b border-[#1e2d3d]/50 hover:bg-white/[0.02] transition-all">
+                        <td className="p-3 text-xs text-[#5a6a7a]">{new Date(tx.created_at).toLocaleString('en-IN')}</td>
+                        <td className="p-3 text-xs font-bold">{tx.customerName}</td>
+                        <td className="p-3 text-[11px] max-w-[200px] truncate">{tx.services}</td>
+                        <td className="p-3 text-xs">
+                          <span className="bg-[#4a9eff]/10 border border-[#4a9eff]/25 rounded text-[#4a9eff] px-2 py-0.5 text-[10px] font-bold uppercase">
+                            {tx.billedByName}
+                          </span>
+                        </td>
+                        <td className="p-3 text-xs font-black text-[#c9a84c]">₹{tx.total.toFixed(2)}</td>
+                        <td className="p-3 text-xs">
+                          <span className="bg-[#00c97a]/10 border border-[#00c97a]/25 rounded text-[#00c97a] px-2 py-0.5 text-[10px] font-bold uppercase">
+                            {tx.paymentMode}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="text-center p-8 text-xs text-[#5a6a7a] italic">
+                        No transactions captured.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
 
     </div>
   );

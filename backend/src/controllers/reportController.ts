@@ -219,7 +219,7 @@ export const getPaymentReport = async (req: Request, res: Response) => {
     });
 
     // Aggregate by payment modes
-    const modes = ['Cash', 'UPI', 'GPay', 'Card', 'Net Banking'];
+    const modes = ['Cash', 'UPI', 'GPay'];
     const modeMap: Record<string, { count: number; total: number }> = {};
     modes.forEach((m) => (modeMap[m] = { count: 0, total: 0 }));
 

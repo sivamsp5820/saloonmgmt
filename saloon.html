@@ -651,7 +651,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
               <div class="bf-row" style="color:var(--green);"><span>Authorized Discounts Value:</span><span id="bDisc">₹0.00</span></div>
               <div class="bf-row total"><span>Net Payable Total:</span><span id="bTotal">₹0.00</span></div>
               <select class="pay-select" id="payMode">
-                <option>Cash</option><option>UPI</option><option>Card</option><option>Net Banking</option>
+                <option>Cash</option><option>UPI</option><option>Card</option>
               </select>
               <button class="save-btn" onclick="saveBill()">💾 Complete and Save Transaction</button>
             </div>
@@ -686,7 +686,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
             <div class="ff" style="max-width:180px;"><label>Amount (₹) *</label><input type="number" id="expAmt" placeholder="0" min="0"></div>
             <div class="ff" style="max-width:180px;"><label>Payment Mode</label>
               <select id="expMode">
-                <option>Cash</option><option>UPI</option><option>Card</option><option>Net Banking</option>
+                <option>Cash</option><option>UPI</option><option>Card</option>
               </select>
             </div>
             <div class="ff" style="max-width:200px;"><label>Note (optional)</label><input type="text" id="expNote" placeholder="Additional note…"></div>
@@ -1522,7 +1522,7 @@ function loadPaymentReport(){
   const period=document.getElementById('pmPeriod').value;
   const uid=document.getElementById('pmUser').value;
   const bills=filteredBills(period,uid);
-  const modes=['Cash','UPI','Card','Net Banking'];
+  const modes=['Cash','UPI','Card'];
   const modeMap={};
   modes.forEach(m=>modeMap[m]={count:0,total:0});
   bills.forEach(b=>{
@@ -1532,7 +1532,7 @@ function loadPaymentReport(){
     modeMap[m].total+=b.total;
   });
   const grandTotal=bills.reduce((s,b)=>s+b.total,0);
-  const colors={Cash:'var(--gold)',UPI:'var(--green)',Card:'var(--blue)','Net Banking':'#a07830'};
+  const colors={Cash:'var(--gold)',UPI:'var(--green)',Card:'var(--blue)'};
   const topMode=Object.entries(modeMap).sort((a,b)=>b[1].total-a[1].total)[0];
   document.getElementById('pmStats').innerHTML=`
     <div class="sc g"><div class="si">💰</div><div class="sv">₹${grandTotal.toLocaleString('en-IN')}</div><div class="sl">Grand Total</div></div>
@@ -1630,7 +1630,7 @@ function editInvoice(id){
   if(newName===null)return;
   const newTotal=parseFloat(prompt('Edit Total Amount (₹):',b.total.toFixed(2)));
   if(isNaN(newTotal)||newTotal<0){toast('Invalid amount','err');return;}
-  const newMode=prompt('Edit Payment Mode (Cash/UPI/Card/Net Banking):',b.payMode);
+  const newMode=prompt('Edit Payment Mode (Cash/UPI/Card):',b.payMode);
   if(!newMode)return;
   const updated=bills.map(x=>x.id===id?{...x,custName:newName.trim(),total:newTotal,payMode:newMode.trim()}:x);
   SS('gc_bills',updated);

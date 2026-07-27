@@ -143,7 +143,7 @@ export const DashboardLayout: React.FC = () => {
   const adminNav: NavItem[] = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
     { path: '/admin/sales', label: 'Sales Reports', icon: <TrendingUp size={18} /> },
-    { path: '/admin/customers', label: 'Customers', icon: <Users size={18} /> },
+    { path: '/admin/customers', label: 'Customer Details', icon: <Users size={18} /> },
     { path: '/admin/expenses', label: 'Expenses Report', icon: <IndianRupee size={18} /> },
     { path: '/admin/payments', label: 'Payment Modes', icon: <CreditCard size={18} /> },
     { path: '/admin/services', label: 'Services', icon: <Settings size={18} /> },
@@ -162,7 +162,7 @@ export const DashboardLayout: React.FC = () => {
   // Determine topbar title
   const getPageTitle = () => {
     const current = activeNav.find(n => location.pathname === n.path);
-    return current ? `${current.label} ${user?.role === 'billing' ? 'Workstation' : 'Overview'}` : 'CreoCorpBilling';
+    return current ? `${current.label} ${user?.role === 'billing' ? 'Workstation' : 'Overview'}` : 'CreoCorp Billing';
   };
 
   const formattedDate = new Date().toLocaleDateString('en-IN', {
@@ -178,11 +178,13 @@ export const DashboardLayout: React.FC = () => {
       {/* ── SIDEBAR ── */}
       <aside className="w-[240px] bg-[#111820] border-r border-[#1e2d3d] flex flex-col flex-shrink-0">
         <div className="p-6 border-b border-[#1e2d3d]">
-          <div className="font-serif text-xl font-black text-[#c9a84c] tracking-widest flex items-center gap-2">
-            <span>✂️</span>
-            <span>CreoCorpBilling</span>
+          <div className="font-serif text-xl font-black text-[#c9a84c] tracking-widest flex items-center gap-2.5">
+            <span className="text-2xl">✂️</span>
+            <div className="flex flex-col leading-tight">
+              <span className="text-xl font-black text-[#c9a84c] tracking-widest">CreoCorp</span>
+              <span className="text-xs text-[#c9a84c]/80 font-sans font-bold tracking-widest uppercase">billing</span>
+            </div>
           </div>
-          {/* <p className="text-[10px] text-[#5a6a7a] tracking-[3px] uppercase mt-1">Saloon Billing</p> */}
         </div>
 
         <nav className="flex-1 p-4 flex flex-col gap-1 overflow-y-auto">

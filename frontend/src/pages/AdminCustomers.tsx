@@ -85,10 +85,51 @@ export const AdminCustomers: React.FC = () => {
     }
   };
 
+  // Download Excel State
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+
+  const handleDownloadExcel = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await apiClient.get('/customers/export-excel', {
+        responseType: 'blob',
+      });
+      
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `CreoCorp_Customer_Details_${Date.now()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('API Excel download failed, falling back to client CSV export', err);
+      let csv = 'Customer Name,Phone Number,Visits Count,Total Spend (INR),Last Visit Date\n';
+      customers.forEach((c) => {
+        csv += `"${c.name}","${c.phone || ''}","${c.visits}","${c.totalSpent?.toFixed(2) || '0.00'}","${c.lastVisit ? new Date(c.lastVisit).toLocaleDateString('en-IN') : 'N/A'}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `CreoCorp_Customer_Details_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       
-      {/* ── Search Bar ── */}
+      {/* ── Search & Download Toolbar ── */}
       <div className="flex justify-between items-center gap-4 flex-wrap">
         <input
           type="text"
@@ -97,9 +138,19 @@ export const AdminCustomers: React.FC = () => {
           placeholder="Search by customer name or phone..."
           className="bg-[#1c2532] border border-[#1e2d3d] rounded-lg px-3 py-2.5 text-xs font-medium text-[#e8edf2] placeholder-[#5a6a7a] focus:border-[#c9a84c] outline-none w-72"
         />
-        <p className="text-xs text-[#5a6a7a]">
-          Sorted by <span className="text-[#c9a84c] font-black">Total Spend</span> (Descending)
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-xs text-[#5a6a7a] hidden sm:block">
+            Sorted by <span className="text-[#c9a84c] font-black">Total Spend</span>
+          </p>
+          <button
+            onClick={handleDownloadExcel}
+            disabled={isDownloading}
+            className="px-4 py-2.5 bg-gradient-to-r from-[#c9a84c] to-[#a07830] text-[#0d1117] rounded-lg text-xs font-bold hover:brightness-110 transition-all flex items-center gap-2 shadow-lg disabled:opacity-50"
+          >
+            <span>📥</span>
+            <span>{isDownloading ? 'Generating Excel...' : 'Download Excel File'}</span>
+          </button>
+        </div>
       </div>
 
       {/* ── Customers Table ── */}
