@@ -6,7 +6,7 @@ export const BillingExpenses: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Add Expense states
+  // Add Expense states sdfsdfsd
   const [showModal, setShowModal] = useState<boolean>(false);
   const [desc, setDesc] = useState('');
   const [amount, setAmount] = useState<number>(0);
@@ -65,7 +65,7 @@ export const BillingExpenses: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      
+
       {/* ── Action Header ── */}
       <div className="flex justify-between items-center gap-4">
         <div>
@@ -134,7 +134,7 @@ export const BillingExpenses: React.FC = () => {
         <div className="fixed inset-0 bg-black/75 z-[100] flex items-center justify-center p-4">
           <form onSubmit={handleSave} className="bg-[#1c2532] border border-[#c9a84c]/25 rounded-2xl p-6 w-[450px] max-w-full">
             <h3 className="text-base font-bold text-[#c9a84c] mb-5">➕ Record Workstation Expense</h3>
-            
+
             <div className="flex flex-col gap-4 mb-6">
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold uppercase text-[#c9a84c] tracking-wider">Description</label>
