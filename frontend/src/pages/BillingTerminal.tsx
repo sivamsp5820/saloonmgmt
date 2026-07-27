@@ -28,8 +28,11 @@ export const BillingTerminal: React.FC = () => {
   // Payment Mode
   const [paymentMode, setPaymentMode] = useState<'Cash' | 'UPI' | 'GPay'>('Cash');
 
-  const fetchServices = async () => {
-    setIsLoading(true);
+  // Toast Notification
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  const fetchServices = async (isInitial = false) => {
+    if (isInitial) setIsLoading(true);
     try {
       const res = await apiClient.get('/services');
       if (res.data.status === 'success') {
@@ -38,13 +41,13 @@ export const BillingTerminal: React.FC = () => {
     } catch (err) {
       console.error('Failed to load services.');
     } finally {
-      setIsLoading(false);
+      if (isInitial) setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchServices();
-    const handleFocus = () => fetchServices();
+    fetchServices(true);
+    const handleFocus = () => fetchServices(false);
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
@@ -144,7 +147,8 @@ export const BillingTerminal: React.FC = () => {
       const res = await apiClient.post('/transactions', payload);
       
       if (res.data.status === 'success') {
-        alert('✅ Bill saved successfully!');
+        setToastMsg('✅ Bill saved successfully!');
+        setTimeout(() => setToastMsg(null), 3000);
         handleClearCart();
       }
     } catch (err: any) {
@@ -372,6 +376,12 @@ export const BillingTerminal: React.FC = () => {
         </div>
 
       </div>
+
+      {toastMsg && (
+        <div className="fixed bottom-6 right-6 bg-[#00c97a] text-[#0d1117] font-black px-5 py-3 rounded-xl shadow-[0_10px_30px_rgba(0,201,122,0.4)] z-[100] animate-bounce text-xs flex items-center gap-2">
+          <span>{toastMsg}</span>
+        </div>
+      )}
 
     </div>
   );
