@@ -72,7 +72,7 @@ export const getCustomerHistory = async (req: Request, res: Response) => {
     }
     const customer = customerRes.rows[0];
 
-    // 2. Query transactions for the customer, joining services
+    // 2. Query transactions for the customer, joining services and profiles
     const txQuery = `
       SELECT 
         t.id,
@@ -83,6 +83,8 @@ export const getCustomerHistory = async (req: Request, res: Response) => {
         t.discount_amount::float as discount_amount,
         t.total::float as total,
         t.payment_mode,
+        t.billed_by,
+        p.name as "billedByName",
         COALESCE(
           json_agg(
             json_build_object(
@@ -96,10 +98,11 @@ export const getCustomerHistory = async (req: Request, res: Response) => {
           '[]'
         ) as transaction_services
       FROM transactions t
+      LEFT JOIN profiles p ON t.billed_by = p.id
       LEFT JOIN transaction_services ts ON ts.transaction_id = t.id
       LEFT JOIN services s ON ts.service_id = s.id
       WHERE t.customer_id = $1
-      GROUP BY t.id
+      GROUP BY t.id, p.id
       ORDER BY t.created_at DESC
     `;
     const txRes = await pool.query(txQuery, [id]);
@@ -120,7 +123,9 @@ export const getCustomerHistory = async (req: Request, res: Response) => {
         discount_value: t.discount_value,
         discount_amount: t.discount_amount,
         total: t.total,
-        payment_mode: t.payment_mode,
+        payment_mode: t.payment_mode === 'UPI' ? 'Card' : t.payment_mode,
+        billedBy: t.billed_by,
+        billedByName: t.billedByName || 'Unknown',
         services,
       };
     });

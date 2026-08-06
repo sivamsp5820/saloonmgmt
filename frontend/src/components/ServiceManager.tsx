@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import type { Service, ServiceCategory } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 
 export const ServiceManager: React.FC = () => {
+  const { user } = useAuth();
+  const isBillingUser = user?.role === 'billing';
   const [activeTab, setActiveTab] = useState<'treatments' | 'categories'>('treatments');
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
@@ -245,7 +248,7 @@ export const ServiceManager: React.FC = () => {
           </button>
         </div>
 
-        {activeTab === 'treatments' && (
+        {!isBillingUser && activeTab === 'treatments' && (
           <button
             onClick={handleOpenAddSvc}
             className="px-4 py-2 bg-gradient-to-r from-[#c9a84c] to-[#a07830] text-[#0d1117] font-black rounded-lg text-xs tracking-wide hover:shadow-[0_8px_24px_rgba(201,168,76,0.25)] transition-all"
@@ -279,20 +282,22 @@ export const ServiceManager: React.FC = () => {
 
                 <div className="flex justify-between items-center border-t border-[#1e2d3d]/50 pt-3">
                   <span className="text-sm font-black text-[#c9a84c]">₹{s.price.toFixed(2)}</span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleOpenEditSvc(s)}
-                      className="px-2.5 py-1 text-[10px] font-bold border border-[#c9a84c]/25 hover:bg-[#c9a84c]/10 text-[#c9a84c] rounded transition-all"
-                    >
-                      ✏️ Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteSvc(s.id)}
-                      className="px-2.5 py-1 text-[10px] font-bold border border-red-500/25 hover:bg-red-500/10 text-[#ff8080] rounded transition-all"
-                    >
-                      🗑 Del
-                    </button>
-                  </div>
+                  {!isBillingUser && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleOpenEditSvc(s)}
+                        className="px-2.5 py-1 text-[10px] font-bold border border-[#c9a84c]/25 hover:bg-[#c9a84c]/10 text-[#c9a84c] rounded transition-all"
+                      >
+                        ✏️ Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSvc(s.id)}
+                        className="px-2.5 py-1 text-[10px] font-bold border border-red-500/25 hover:bg-red-500/10 text-[#ff8080] rounded transition-all"
+                      >
+                        🗑 Del
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))

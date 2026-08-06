@@ -16,7 +16,7 @@ export const createTransactionSchema = z.object({
     discountAmount: z.number().nonnegative().optional(),
     subtotal: z.number().nonnegative().optional(),
     total: z.number().nonnegative().optional(),
-    paymentMode: z.enum(['Cash', 'UPI', 'GPay']),
+    paymentMode: z.enum(['Cash', 'Card', 'GPay', 'UPI']),
   }),
 });
 
@@ -27,7 +27,7 @@ export const updateTransactionSchema = z.object({
   body: z.object({
     customerName: z.string().min(1, 'Customer name is required').optional(),
     total: z.number().nonnegative().optional(),
-    paymentMode: z.enum(['Cash', 'UPI', 'GPay']).optional(),
+    paymentMode: z.enum(['Cash', 'Card', 'GPay', 'UPI']).optional(),
   }),
 });
 
@@ -136,7 +136,7 @@ export const getTransactions = async (req: Request, res: Response) => {
         discount_value: t.discount_value,
         discount_amount: t.discount_amount,
         total: t.total,
-        paymentMode: t.paymentMode,
+        paymentMode: t.paymentMode === 'UPI' ? 'Card' : t.paymentMode,
         billedBy: t.billedBy,
         billedByName: t.billedByName || 'Unknown',
         services,

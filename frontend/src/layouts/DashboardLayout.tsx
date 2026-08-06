@@ -144,6 +144,7 @@ export const DashboardLayout: React.FC = () => {
     { path: '/admin/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
     { path: '/admin/sales', label: 'Sales Reports', icon: <TrendingUp size={18} /> },
     { path: '/admin/customers', label: 'Customer Details', icon: <Users size={18} /> },
+    { path: '/admin/customer-visit-history', label: 'Customer Visit History', icon: <Calendar size={18} /> },
     { path: '/admin/expenses', label: 'Expenses Report', icon: <IndianRupee size={18} /> },
     { path: '/admin/payments', label: 'Payment Modes', icon: <CreditCard size={18} /> },
     { path: '/admin/services', label: 'Services', icon: <Settings size={18} /> },

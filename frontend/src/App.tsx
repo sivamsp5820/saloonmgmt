@@ -9,6 +9,7 @@ import { LoginPage } from './pages/LoginPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { AdminSales } from './pages/AdminSales';
 import { AdminCustomers } from './pages/AdminCustomers';
+import { AdminCustomerVisitHistory } from './pages/AdminCustomerVisitHistory';
 import { AdminExpenses } from './pages/AdminExpenses';
 import { AdminPayments } from './pages/AdminPayments';
 import { AdminServices } from './pages/AdminServices';
@@ -33,6 +34,7 @@ const App: React.FC = () => {
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/sales" element={<AdminSales />} />
               <Route path="/admin/customers" element={<AdminCustomers />} />
+              <Route path="/admin/customer-visit-history" element={<AdminCustomerVisitHistory />} />
               <Route path="/admin/expenses" element={<AdminExpenses />} />
               <Route path="/admin/payments" element={<AdminPayments />} />
               <Route path="/admin/services" element={<AdminServices />} />

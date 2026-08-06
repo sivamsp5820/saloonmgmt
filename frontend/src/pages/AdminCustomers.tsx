@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import type { Customer } from '../types';
+import { AdminCustomerVisitHistory } from './AdminCustomerVisitHistory';
 
 export const AdminCustomers: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'roster' | 'visit-history'>('roster');
   const [search, setSearch] = useState<string>('');
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -129,7 +131,37 @@ export const AdminCustomers: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       
-      {/* ── Search & Download Toolbar ── */}
+      {/* ── Sub Navigation Tabs ── */}
+      <div className="flex border-b border-[#1e2d3d] gap-2 pb-0">
+        <button
+          onClick={() => setActiveTab('roster')}
+          className={`px-5 py-2.5 text-xs font-bold transition-all border-b-2 flex items-center gap-2 rounded-t-lg select-none ${
+            activeTab === 'roster'
+              ? 'border-[#c9a84c] text-[#c9a84c] bg-[#c9a84c]/10'
+              : 'border-transparent text-[#5a6a7a] hover:text-[#e8edf2] hover:bg-white/5'
+          }`}
+        >
+          <span>👥</span>
+          <span>Customer Details Roster</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('visit-history')}
+          className={`px-5 py-2.5 text-xs font-bold transition-all border-b-2 flex items-center gap-2 rounded-t-lg select-none ${
+            activeTab === 'visit-history'
+              ? 'border-[#c9a84c] text-[#c9a84c] bg-[#c9a84c]/10'
+              : 'border-transparent text-[#5a6a7a] hover:text-[#e8edf2] hover:bg-white/5'
+          }`}
+        >
+          <span>📜</span>
+          <span>Customer Visit History</span>
+        </button>
+      </div>
+
+      {activeTab === 'visit-history' ? (
+        <AdminCustomerVisitHistory />
+      ) : (
+        <>
+          {/* ── Search & Download Toolbar ── */}
       <div className="flex justify-between items-center gap-4 flex-wrap">
         <input
           type="text"
@@ -322,6 +354,8 @@ export const AdminCustomers: React.FC = () => {
 
           </div>
         </div>
+      )}
+        </>
       )}
 
     </div>

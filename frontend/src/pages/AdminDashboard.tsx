@@ -290,7 +290,7 @@ export const AdminDashboard: React.FC = () => {
                     <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Date</th>
                     <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Customer</th>
                     <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Services</th>
-                    <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Terminal</th>
+                    <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Billed / Created By</th>
                     <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Total</th>
                     <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Payment</th>
                   </tr>

@@ -17,7 +17,7 @@ export const AdminSales: React.FC = () => {
   const [editTx, setEditTx] = useState<Transaction | null>(null);
   const [editName, setEditName] = useState('');
   const [editTotal, setEditTotal] = useState<number>(0);
-  const [editMode, setEditMode] = useState<'Cash' | 'UPI' | 'GPay'>('Cash');
+  const [editMode, setEditMode] = useState<'Cash' | 'Card' | 'GPay'>('Cash');
 
   // Stats
   const [netRevenue, setNetRevenue] = useState(0);
@@ -160,7 +160,7 @@ export const AdminSales: React.FC = () => {
           >
             <option value="all">All Payment Modes</option>
             <option value="Cash">Cash</option>
-            <option value="UPI">UPI</option>
+            <option value="Card">Card</option>
             <option value="GPay">GPay</option>
           </select>
 
@@ -223,7 +223,7 @@ export const AdminSales: React.FC = () => {
                 <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Discount</th>
                 <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Total</th>
                 <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Mode</th>
-                <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Terminal</th>
+                <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Billed / Created By</th>
                 <th className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider p-3">Actions</th>
               </tr>
             </thead>
@@ -322,7 +322,7 @@ export const AdminSales: React.FC = () => {
                   className="bg-[#0d1117] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs text-[#e8edf2] outline-none focus:border-[#c9a84c]"
                 >
                   <option value="Cash">Cash</option>
-                  <option value="UPI">UPI</option>
+                  <option value="Card">Card</option>
                   <option value="GPay">GPay</option>
                 </select>
               </div>

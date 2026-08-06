@@ -11,7 +11,7 @@ export const BillingExpenses: React.FC = () => {
   const [desc, setDesc] = useState('');
   const [amount, setAmount] = useState<number>(0);
   const [category, setCategory] = useState<'Product Purchase' | 'Utilities' | 'Maintenance' | 'Salary' | 'Rent' | 'Marketing' | 'Other'>('Other');
-  const [paymentMode, setPaymentMode] = useState<'Cash' | 'UPI' | 'GPay'>('Cash');
+  const [paymentMode, setPaymentMode] = useState<'Cash' | 'Card' | 'GPay'>('Cash');
   const [note, setNote] = useState('');
 
   const fetchExpenses = async () => {
@@ -169,7 +169,7 @@ export const BillingExpenses: React.FC = () => {
                   className="bg-[#0d1117] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs text-[#e8edf2] outline-none focus:border-[#c9a84c]"
                 >
                   <option value="Cash">Cash</option>
-                  <option value="UPI">UPI</option>
+                  <option value="Card">Card</option>
                   <option value="GPay">GPay</option>
                 </select>
               </div>

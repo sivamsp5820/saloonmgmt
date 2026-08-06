@@ -26,7 +26,10 @@ export const BillingTerminal: React.FC = () => {
   const [discVal, setDiscVal] = useState<number>(0);
 
   // Payment Mode
-  const [paymentMode, setPaymentMode] = useState<'Cash' | 'UPI' | 'GPay'>('Cash');
+  const [paymentMode, setPaymentMode] = useState<'Cash' | 'Card' | 'GPay'>('Cash');
+
+  // Today's Bills (Customer history shows only today's bills in Billing Panel)
+  const [todayBills, setTodayBills] = useState<any[]>([]);
 
   // Toast Notification
   const [toastMsg, setToastMsg] = useState<string | null>(null);
@@ -45,9 +48,24 @@ export const BillingTerminal: React.FC = () => {
     }
   };
 
+  const fetchTodayBills = async () => {
+    try {
+      const res = await apiClient.get('/transactions', { params: { period: 'day' } });
+      if (res.data.status === 'success') {
+        setTodayBills(res.data.data || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch today transactions.');
+    }
+  };
+
   useEffect(() => {
     fetchServices(true);
-    const handleFocus = () => fetchServices(false);
+    fetchTodayBills();
+    const handleFocus = () => {
+      fetchServices(false);
+      fetchTodayBills();
+    };
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
@@ -150,6 +168,7 @@ export const BillingTerminal: React.FC = () => {
         setToastMsg('✅ Bill saved successfully!');
         setTimeout(() => setToastMsg(null), 3000);
         handleClearCart();
+        fetchTodayBills();
       }
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to save billing ticket.');
@@ -246,6 +265,53 @@ export const BillingTerminal: React.FC = () => {
           )}
         </div>
 
+        {/* ── Customer History (Today's Bills) ── */}
+        <div className="border-t border-[#1e2d3d] pt-4 mt-3 flex-shrink-0">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider">
+              Today's Customer Bills ({todayBills.length})
+            </span>
+            <span className="text-[10px] text-[#5a6a7a]">Showing today's bills</span>
+          </div>
+
+          <div className="max-h-[140px] overflow-y-auto bg-[#0d1117] border border-[#1e2d3d] rounded-xl p-2">
+            {todayBills.length > 0 ? (
+              <table className="w-full text-left border-collapse text-[11px]">
+                <thead>
+                  <tr className="border-b border-[#1e2d3d]/60 text-[9px] text-[#c9a84c] uppercase font-bold">
+                    <th className="p-1.5">Time</th>
+                    <th className="p-1.5">Customer</th>
+                    <th className="p-1.5">Services</th>
+                    <th className="p-1.5 text-right">Total</th>
+                    <th className="p-1.5 text-center">Mode</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {todayBills.map((b: any) => (
+                    <tr key={b.id} className="border-b border-[#1e2d3d]/30 hover:bg-white/[0.02]">
+                      <td className="p-1.5 text-[#5a6a7a]">
+                        {new Date(b.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                      <td className="p-1.5 font-bold text-[#e8edf2]">{b.customerName}</td>
+                      <td className="p-1.5 text-[#5a6a7a] truncate max-w-[140px]">
+                        {(b.services || []).map((s: any) => s.name).join(', ')}
+                      </td>
+                      <td className="p-1.5 font-extrabold text-[#c9a84c] text-right">₹{parseFloat(b.total).toFixed(2)}</td>
+                      <td className="p-1.5 text-center">
+                        <span className="bg-[#00c97a]/10 text-[#00c97a] px-1.5 py-0.5 rounded text-[9px] font-bold uppercase">
+                          {b.paymentMode === 'UPI' ? 'Card' : b.paymentMode}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="text-center py-4 text-[11px] text-[#5a6a7a] italic">No transactions recorded today yet.</p>
+            )}
+          </div>
+        </div>
+
       </div>
 
       {/* ── RIGHT PANEL: Checkout Cart Summary ── */}
@@ -331,7 +397,7 @@ export const BillingTerminal: React.FC = () => {
           <div className="border-t border-[#1e2d3d]/50 pt-3 flex flex-col gap-2.5">
             <span className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider">Payment Mode</span>
             <div className="grid grid-cols-2 gap-1.5">
-              {(['Cash', 'UPI', 'GPay'] as const).map((mode) => (
+              {(['Cash', 'Card', 'GPay'] as const).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setPaymentMode(mode)}

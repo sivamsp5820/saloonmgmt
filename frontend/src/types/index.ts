@@ -48,7 +48,7 @@ export interface Transaction {
   discount_value: number;
   discount_amount: number;
   total: number;
-  paymentMode: 'Cash' | 'UPI' | 'GPay';
+  paymentMode: 'Cash' | 'Card' | 'GPay';
   billedBy: string;
   billedByName: string;
   services: TransactionService[];
@@ -59,7 +59,7 @@ export interface Expense {
   description: string;
   category: 'Product Purchase' | 'Utilities' | 'Maintenance' | 'Salary' | 'Rent' | 'Marketing' | 'Other';
   amount: number;
-  payment_mode: 'Cash' | 'UPI' | 'GPay';
+  payment_mode: 'Cash' | 'Card' | 'GPay';
   note?: string;
   created_at: string;
   recorded_by: string;

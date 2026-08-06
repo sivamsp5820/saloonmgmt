@@ -651,7 +651,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
               <div class="bf-row" style="color:var(--green);"><span>Authorized Discounts Value:</span><span id="bDisc">₹0.00</span></div>
               <div class="bf-row total"><span>Net Payable Total:</span><span id="bTotal">₹0.00</span></div>
               <select class="pay-select" id="payMode">
-                <option>Cash</option><option>UPI</option><option>Card</option>
+                <option>Cash</option><option>Card</option><option>GPay</option>
               </select>
               <button class="save-btn" onclick="saveBill()">💾 Complete and Save Transaction</button>
             </div>
@@ -686,7 +686,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
             <div class="ff" style="max-width:180px;"><label>Amount (₹) *</label><input type="number" id="expAmt" placeholder="0" min="0"></div>
             <div class="ff" style="max-width:180px;"><label>Payment Mode</label>
               <select id="expMode">
-                <option>Cash</option><option>UPI</option><option>Card</option>
+                <option>Cash</option><option>Card</option><option>GPay</option>
               </select>
             </div>
             <div class="ff" style="max-width:200px;"><label>Note (optional)</label><input type="text" id="expNote" placeholder="Additional note…"></div>
@@ -821,7 +821,7 @@ if(!S('gc_bills')) SS('gc_bills',[]);
       custName:names[ni],custPhone:phones[ni],
       services:sel,discType:'rupees',discVal:disc,discount:disc,
       subtotal:sub,total:sub-disc,
-      payMode:['Cash','UPI','Card'][Math.floor(Math.random()*3)],
+      payMode:['Cash','Card','GPay'][Math.floor(Math.random()*3)],
       billedBy:uid,billedByName:uid==='billing1'?'Terminal 1':'Terminal 2',
     });
   }
