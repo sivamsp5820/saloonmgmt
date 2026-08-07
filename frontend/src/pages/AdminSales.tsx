@@ -17,7 +17,7 @@ export const AdminSales: React.FC = () => {
   const [editTx, setEditTx] = useState<Transaction | null>(null);
   const [editName, setEditName] = useState('');
   const [editTotal, setEditTotal] = useState<number>(0);
-  const [editMode, setEditMode] = useState<'Cash' | 'Card' | 'GPay'>('Cash');
+  const [editMode, setEditMode] = useState<'Card' | 'Cash' | 'UPI'>('Card');
 
   // Stats
   const [netRevenue, setNetRevenue] = useState(0);
@@ -159,9 +159,9 @@ export const AdminSales: React.FC = () => {
             className="bg-[#1c2532] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs font-medium text-[#e8edf2] focus:border-[#c9a84c] outline-none"
           >
             <option value="all">All Payment Modes</option>
-            <option value="Cash">Cash</option>
             <option value="Card">Card</option>
-            <option value="GPay">GPay</option>
+            <option value="Cash">Cash</option>
+            <option value="UPI">UPI</option>
           </select>
 
           <select
@@ -321,9 +321,9 @@ export const AdminSales: React.FC = () => {
                   onChange={(e: any) => setEditMode(e.target.value)}
                   className="bg-[#0d1117] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs text-[#e8edf2] outline-none focus:border-[#c9a84c]"
                 >
-                  <option value="Cash">Cash</option>
                   <option value="Card">Card</option>
-                  <option value="GPay">GPay</option>
+                  <option value="Cash">Cash</option>
+                  <option value="UPI">UPI</option>
                 </select>
               </div>
             </div>

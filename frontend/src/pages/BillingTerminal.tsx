@@ -26,10 +26,13 @@ export const BillingTerminal: React.FC = () => {
   const [discVal, setDiscVal] = useState<number>(0);
 
   // Payment Mode
-  const [paymentMode, setPaymentMode] = useState<'Cash' | 'Card' | 'GPay'>('Cash');
+  const [paymentMode, setPaymentMode] = useState<'Card' | 'Cash' | 'UPI'>('Card');
 
   // Today's Bills (Customer history shows only today's bills in Billing Panel)
   const [todayBills, setTodayBills] = useState<any[]>([]);
+
+  // Submission Guard
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Toast Notification
   const [toastMsg, setToastMsg] = useState<string | null>(null);
@@ -126,13 +129,22 @@ export const BillingTerminal: React.FC = () => {
   const total = Math.max(0, subtotal - discountAmount);
 
   const handleCashout = async () => {
+    if (isSubmitting) return;
+
     if (!isOnline) {
       alert('⚠️ Terminal is OFFLINE. Please activate "Business Online" toggle in the top status bar before recording sales.');
       return;
     }
 
-    if (!custName) {
+    if (!custName.trim()) {
       alert('Customer Name is required.');
+      return;
+    }
+
+    // 10-digit mobile number validation
+    const cleanPhone = custPhone.trim().replace(/\D/g, '');
+    if (!cleanPhone || cleanPhone.length !== 10) {
+      alert('⚠️ Mobile Number validation failed: Please enter a valid 10-digit mobile number before saving.');
       return;
     }
 
@@ -141,6 +153,7 @@ export const BillingTerminal: React.FC = () => {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       // Format items array for controller
       const itemsPayload = cart.flatMap((item) => 
@@ -151,8 +164,8 @@ export const BillingTerminal: React.FC = () => {
       );
 
       const payload = {
-        customerName: custName,
-        customerPhone: custPhone || undefined,
+        customerName: custName.trim(),
+        customerPhone: cleanPhone,
         services: itemsPayload,
         discountType: discType,
         discountValue: discVal,
@@ -172,6 +185,8 @@ export const BillingTerminal: React.FC = () => {
       }
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to save billing ticket.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -202,12 +217,14 @@ export const BillingTerminal: React.FC = () => {
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[9px] font-black uppercase text-[#c9a84c] tracking-widest">Mobile Number</label>
+            <label className="text-[9px] font-black uppercase text-[#c9a84c] tracking-widest">Mobile Number * (10 Digits)</label>
             <input
               type="text"
+              required
+              maxLength={10}
               value={custPhone}
-              onChange={(e) => setCustPhone(e.target.value)}
-              placeholder="e.g. 9876543210"
+              onChange={(e) => setCustPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+              placeholder="10-digit mobile number"
               className="bg-[#0d1117] border border-[#1e2d3d] rounded-lg px-3 py-2 text-xs text-[#e8edf2] outline-none focus:border-[#c9a84c] transition-all"
             />
           </div>
@@ -396,8 +413,8 @@ export const BillingTerminal: React.FC = () => {
           {/* Payment Method */}
           <div className="border-t border-[#1e2d3d]/50 pt-3 flex flex-col gap-2.5">
             <span className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-wider">Payment Mode</span>
-            <div className="grid grid-cols-2 gap-1.5">
-              {(['Cash', 'Card', 'GPay'] as const).map((mode) => (
+            <div className="grid grid-cols-3 gap-1.5">
+              {(['Card', 'Cash', 'UPI'] as const).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setPaymentMode(mode)}
@@ -434,10 +451,10 @@ export const BillingTerminal: React.FC = () => {
 
           <button
             onClick={handleCashout}
-            disabled={!isOnline || cart.length === 0}
+            disabled={!isOnline || cart.length === 0 || isSubmitting}
             className="w-full py-4 bg-gradient-to-r from-[#c9a84c] to-[#a07830] text-[#0d1117] font-black rounded-xl text-sm tracking-wide hover:shadow-[0_8px_24px_rgba(201,168,76,0.35)] disabled:opacity-40 transition-all select-none flex items-center justify-center gap-2"
           >
-            {!isOnline ? '🚨 Terminal Offline' : '💾 Save Bill'}
+            {!isOnline ? '🚨 Terminal Offline' : isSubmitting ? '⏳ Saving Bill...' : '💾 Save Bill'}
           </button>
         </div>
 

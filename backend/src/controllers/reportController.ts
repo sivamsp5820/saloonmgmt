@@ -219,13 +219,13 @@ export const getPaymentReport = async (req: Request, res: Response) => {
     });
 
     // Aggregate by payment modes
-    const modes = ['Cash', 'Card', 'GPay'];
+    const modes = ['Card', 'Cash', 'UPI'];
     const modeMap: Record<string, { count: number; total: number }> = {};
     modes.forEach((m) => (modeMap[m] = { count: 0, total: 0 }));
 
     filtered.forEach((t) => {
       let mode = t.payment_mode;
-      if (mode === 'UPI') mode = 'Card';
+      if (mode === 'GPay') mode = 'UPI';
       if (modeMap[mode]) {
         modeMap[mode].count++;
         modeMap[mode].total += parseFloat(t.total as any);
